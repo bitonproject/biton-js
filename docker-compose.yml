@@ -1,0 +1,13 @@
+version: '3'
+services:
+  hybrid:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: biton-hybrid
+    container_name: biton-hybrid-client
+    ports:
+    - "5000:5000"
+    volumes:
+    - .:/home/node/
+    - /home/node/node_modules/
