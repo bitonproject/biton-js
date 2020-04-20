@@ -1,0 +1,16 @@
+{
+  "name": "biton",
+  "version": "0.0.1",
+  "description": "A peer-to-peer network for evading information controls",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "webtorrent-hybrid": "^4.0.1"
+  },
+  "author": "Marios Isaakidis (marios@bitonproject.org)",
+  "license": "BSD-3-Clause",
+  "homepage": "https://bitonproject.org"
+}
