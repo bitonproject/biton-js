@@ -13,13 +13,14 @@ class bitonClient extends WebTorrent {
         super()
     }
 
-    destroy () {
+    destroy (cb) {
         debug('Destroying biton wires...')
-        this.destroy()
-        if (typeof window.localStorage != "undefined") {
+        super.destroy(cb)
+        if (typeof localStorage != "undefined") {
             window.localStorage.removeItem('debug')
         }
     }
 }
+
 
 module.exports = bitonClient

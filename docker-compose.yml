@@ -9,5 +9,7 @@ services:
     ports:
     - "5000:5000"
     volumes:
-    - .:/home/node/
+    - .:/home/node/biton/
     - /home/node/node_modules/
+    environment:
+    - NODE_ENV=production

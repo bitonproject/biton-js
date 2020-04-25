@@ -18,5 +18,7 @@ RUN npm install
 # Bundle app source
 COPY --chown=node:node . .
 
+RUN npm link
+
 EXPOSE 5000
-CMD [ "node", "index.js" ]
+CMD [ "biton" ]
