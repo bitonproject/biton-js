@@ -1,10 +1,25 @@
 'use strict'
 
 const WebTorrent = require('webtorrent-hybrid')
-const fs = require('fs')
+const debug = require('debug')('webtorrent')
 
-const PORT = process.env.PORT || 5000
-const HOST = '0.0.0.0'
 
-console.log('biton webtorrent-hybrid client')
-console.log(`Running on http://${HOST}:${PORT}`)
+/**
+ * biton Client
+ * @param {Object=} opts
+ */
+class bitonClient extends WebTorrent {
+    constructor (opts={tracker: false, private: true, path: __dirname + './bitondb/'}) {
+        super()
+    }
+
+    destroy () {
+        debug('Destroying biton wires...')
+        this.destroy()
+        if (typeof window.localStorage != "undefined") {
+            window.localStorage.removeItem('debug')
+        }
+    }
+}
+
+module.exports = bitonClient

@@ -12,5 +12,8 @@
   },
   "author": "Marios Isaakidis (marios@bitonproject.org)",
   "license": "BSD-3-Clause",
-  "homepage": "https://bitonproject.org"
+  "homepage": "https://bitonproject.org",
+  "bin": {
+    "biton": "./bin/biton.js"
+  }
 }
