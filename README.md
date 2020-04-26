@@ -30,7 +30,7 @@ command (keeps track of your local changes) with:
 npm init
 ```
 
-### Running biton in Docker
+### Running in Docker
 
 The Docker files are:
 
