@@ -1,8 +1,10 @@
 'use strict'
 
 const WebTorrent = require('webtorrent-hybrid')
-const debug = require('debug')('webtorrent')
+const debug = require('debug')('biton')
+const bitonExtension = require('./biton-ext.js')
 
+const bitonSwarmSeed = 'biton'
 
 /**
  * biton Client
@@ -13,10 +15,23 @@ class bitonClient extends WebTorrent {
         super()
     }
 
+    /**
+     * Join a swarm
+     * @param  {string }swarmSeed
+     * @param  {Object=} opts
+     * @param  {function=} onseed called when torrent is seeding
+     * @return {torrent}
+     */
+    joinSwarm (swarmSeed = bitonSwarmSeed, opts = {name: 'biton'}, onseed) {
+    }
+
+    /**
+     * Destroy the client, including all torrents and connections to peers.
+     * @param  {function} cb
+     */
     destroy (cb) {
-        debug('Destroying biton wires...')
         super.destroy(cb)
-        if (typeof localStorage != "undefined") {
+        if (typeof localStorage !== 'undefined') {
             window.localStorage.removeItem('debug')
         }
     }
