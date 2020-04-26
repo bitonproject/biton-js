@@ -8,6 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "express": "^4.17.1",
+    "pug": "^2.0.4",
     "webtorrent-hybrid": "^4.0.1"
   },
   "author": "Marios Isaakidis (marios@bitonproject.org)",
