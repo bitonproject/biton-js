@@ -5,8 +5,6 @@ const express = require('express')
 const http = require('http')
 const pug = require('pug')
 
-const graphRoutes = require('./graphRoutes.js')
-
 const PORT = process.env.PORT || 5000
 const HOST = '127.0.0.1'
 
@@ -14,19 +12,22 @@ console.log('biton webtorrent-hybrid client')
 
 let client = new bitonClient()
 
-//
+// Setup express behind the http module
 let app = express()
 let server = http.createServer(app)
+
+// Serve static files in the public directory
+app.use(express.static(__dirname + "/public"))
 
 // Setup pug for rendering views
 app.set('views', __dirname + '/views/')
 app.set('view engine', 'pug')
 app.engine('pug', pug.renderFile)
-pug.filters.markdown = (md, options) => {
-    return remark.render(md)
-}
 
-graphRoutes.addGraphRoutes(app)
+app.get('/', function (req, res) {
+    res.render('index')
+})
+
 
 server.listen(PORT, HOST, () => {
     console.log('HTTP server running at http://%s:%s', server.address().address, server.address().port)

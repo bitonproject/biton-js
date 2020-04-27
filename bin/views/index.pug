@@ -1,1 +1,41 @@
-block body
+doctype html
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        title= rawTitle || 'biton'
+
+        style
+            include style.css
+
+        block head
+
+    main
+        block body
+
+        #hero
+            #progressBar
+            h1 Torrents on the <em>web</em>
+            #status.clearfix
+                #statusLeft
+                    span.show-leech #{ 'Downloading ' }
+                    span.show-seed #{ 'Seeding ' }
+                    code: a#torrentLink(href='https://webtorrent.io/torrents/sintel.torrent') sintel.torrent
+                    span.show-leech #{ ' from ' }
+                    span.show-seed #{ ' to ' }
+                    code#numPeers 0 peers
+                    | #{ '. ' }
+                #statusRight
+                    code#downloaded
+                    | #{ ' of '}
+                    code#total
+                    | #{ ' — '}
+                    span#remaining
+            #svgWrap
+                div.torrent-graph
+            #videoWrap
+                .video
+                    .videoOverlay
+
+    script(src='/bundle.js')

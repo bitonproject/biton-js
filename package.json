@@ -5,12 +5,21 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify bin/views/*.js -o bin/public/bundle.js",
+    "watch": "watchify bin/views/*.js -o bin/public/bundle.js --debug --verbose"
   },
   "dependencies": {
     "express": "^4.17.1",
     "pug": "^2.0.4",
     "webtorrent-hybrid": "^4.0.1"
+  },
+  "devDependencies": {
+    "browserify": "^16.5.1",
+    "p2p-graph": "^2.0.0",
+    "prettier-bytes": "^1.0.4",
+    "throttleit": "^1.0.0",
+    "watchify": "^3.11.1"
   },
   "author": "Marios Isaakidis (marios@bitonproject.org)",
   "license": "BSD-3-Clause",
