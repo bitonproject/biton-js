@@ -11,12 +11,14 @@ WORKDIR /home/node
 # Install app dependencies
 COPY --chown=node:node package*.json ./
 
-RUN npm install
+RUN npm install --dev
 # If you are building your code for production
 # RUN npm ci --only=production
 
 # Bundle app source
 COPY --chown=node:node . .
+
+RUN npm build
 
 RUN npm link
 
