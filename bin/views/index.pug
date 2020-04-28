@@ -19,9 +19,7 @@ html(lang='en')
             h1 Torrents on the <em>web</em>
             #status.clearfix
                 #statusLeft
-                    span.show-leech #{ 'Downloading ' }
-                    span.show-seed #{ 'Seeding ' }
-                    code: a#torrentLink(href='https://webtorrent.io/torrents/sintel.torrent') sintel.torrent
+                    span.show-leech #{ 'Connected to ' }
                     span.show-leech #{ ' from ' }
                     span.show-seed #{ ' to ' }
                     code#numPeers 0 peers

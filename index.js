@@ -3,8 +3,10 @@
 const WebTorrent = require('webtorrent-hybrid')
 const debug = require('debug')('biton')
 const bitonExtension = require('./biton-ext.js')
+const sha1 = require('sha1')
 
-const bitonSwarmSeed = 'biton'
+const bitonSwarmSeed = 'biton info-hash'
+const infohashPrefix = process.env.INFOHASHPREFIX || ''
 
 /**
  * biton Client
@@ -13,16 +15,24 @@ const bitonSwarmSeed = 'biton'
 class bitonClient extends WebTorrent {
     constructor (opts={tracker: false, private: true, path: __dirname + './bitondb/'}) {
         super()
+        debug('Constructed biton client')
     }
 
     /**
      * Join a swarm
-     * @param  {string }swarmSeed
+     * @param  {string} swarmSeed
      * @param  {Object=} opts
      * @param  {function=} onseed called when torrent is seeding
      * @return {torrent}
      */
-    joinSwarm (swarmSeed = bitonSwarmSeed, opts = {name: 'biton'}, onseed) {
+    joinSwarm (swarmSeed, opts, onseed, torrent) {
+        let swarmInfohash = sha1(infohashPrefix + swarmSeed + bitonSwarmSeed);
+        debug('Joining biton swarm with swarm seed %s and info-hash %s', swarmSeed, swarmInfohash)
+        this.add(swarmInfohash, opts, onseed, torrent)
+    }
+
+    joinRootSwarm (opts, onseed, torrent) {
+        this.joinSwarm('', opts, onseed, torrent)
     }
 
     /**
