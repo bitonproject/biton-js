@@ -13,3 +13,4 @@ services:
     - /home/node/node_modules/
     environment:
     - NODE_ENV=production
+    - HOST=0.0.0.0
