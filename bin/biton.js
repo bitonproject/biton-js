@@ -24,10 +24,19 @@ app.set('views', __dirname + '/views/')
 app.set('view engine', 'pug')
 app.engine('pug', pug.renderFile)
 
+// Attach HTTP endpoints
 app.get('/', function (req, res) {
-    res.render('index')
+    res.render('home')
 })
 
+app.get('/browser-client', function (req, res) {
+    res.render('browser-client')
+})
+
+// Handle 404 for unrecognized URLs
+app.get('*', function (req, res) {
+    res.status(404).send('404 Not Found')
+})
 
 server.listen(port=PORT, hostname=HOST, () => {
     console.log('HTTP server running at http://%s:%s', server.address().address, server.address().port)
