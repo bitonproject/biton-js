@@ -3,7 +3,7 @@
 const WebTorrent = require('webtorrent-hybrid')
 const debug = require('debug')('biton')
 const bitonExtension = require('./biton-ext.js')
-const sha1 = require('sha1')
+const sha1 = require('crypto-js/sha1.js')
 
 const bitonSwarmSeed = 'biton info-hash'
 const infohashPrefix = process.env.INFOHASHPREFIX || ''
