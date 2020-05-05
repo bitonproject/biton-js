@@ -53,6 +53,7 @@ server.on('error', function (e) {
 
 // Start a biton client
 let client = new bitonClient()
+client.joinRootSwarm()
 
 
 // Graceful shutdown. Close active connections. Delete logs and uncompleted chunks

@@ -44,7 +44,8 @@ module.exports = function () {
         client.on('error', onError)
 
         // Create torrent
-        torrent = client.joinRootSwarm(onTorrent=onTorrent)
+        torrent = client.joinRootSwarm()
+        client.on('torrent', onTorrent.bind())
     }
 
     const $body = document.body

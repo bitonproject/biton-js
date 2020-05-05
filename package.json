@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "crypto-js": "^4.0.0",
+    "events": "^3.1.0",
     "express": "^4.17.1",
     "pug": "^2.0.4",
-    "ut-metadata": "^0.6.1",
     "webtorrent-hybrid": "^4.0.1"
   },
   "devDependencies": {

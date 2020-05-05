@@ -5,7 +5,7 @@ const debug = require('debug')('biton')
 const bitonExtension = require('./biton-ext.js')
 const sha1 = require('crypto-js/sha1.js')
 
-const bitonSwarmSeed = 'biton info-hash'
+const bitonSeed = 'biton'
 const infohashPrefix = process.env.INFOHASHPREFIX || ''
 
 /**
@@ -19,20 +19,29 @@ class bitonClient extends WebTorrent {
     }
 
     /**
-     * Join a swarm
+     * Join a biton swarm
      * @param  {string} swarmSeed
      * @param  {Object=} opts
      * @param  {function=} onseed called when torrent is seeding
      * @return {torrent}
      */
-    joinSwarm (swarmSeed, opts, onseed, torrent) {
-        let swarmInfohash = sha1(infohashPrefix + swarmSeed + bitonSwarmSeed);
-        debug('Joining biton swarm with swarm seed %s and info-hash %s', swarmSeed, swarmInfohash)
-        this.add(swarmInfohash, opts, onseed, torrent)
+    joinSwarm (swarmSeed, opts, onseed) {
+        let combinedSeed = [infohashPrefix, swarmSeed, bitonSeed].filter(Boolean).join(" ");
+        let swarmInfohash = sha1(combinedSeed).toString();
+        debug('joining biton swarm with swarm seed "%s" and info-hash "%s"', combinedSeed, swarmInfohash)
+
+        let torrent = this.add(swarmInfohash, opts, onseed)
+
+        // Only use the biton extension for torrents that correspond to biton swarms
+        torrent.on('wire', function (wire, addr) {
+            debug('swarm "%s": connected to peer with address %s', combinedSeed, addr)
+            debug('supported extensions: ' + JSON.stringify(wire.peerExtensions))
+            wire.use(bitonExtension(wire))
+        })
     }
 
-    joinRootSwarm (opts, onseed, torrent) {
-        this.joinSwarm('', opts, onseed, torrent)
+    joinRootSwarm (opts, onseed) {
+        this.joinSwarm('', opts, onseed)
     }
 
     /**

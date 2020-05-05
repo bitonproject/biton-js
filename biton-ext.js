@@ -1,11 +1,16 @@
-const { utMetadata } = require('ut-metadata')
-const debug = require('debug')('biton-extension')
-const bencode = require('bencode')
+const { EventEmitter } = require('events')
+const debug = require('debug')('biton-ext')
 
-class bitonExtension extends utMetadata {
-    constructor (wire) {
-        super()
+module.exports = () => {
+    class bitonExtension extends EventEmitter {
+        constructor(wire) {
+            debug('load biton extension on wire with peerId %s', wire.peerId)
+            super()
+        }
     }
-}
 
-module.exports = bitonExtension
+    // Name of the bittorrent-protocol extension
+    bitonExtension.prototype.name = 'biton'
+
+    return bitonExtension
+}
