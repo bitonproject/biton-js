@@ -4,13 +4,12 @@ const bitonClient = require('../')
 const express = require('express')
 const http = require('http')
 const pug = require('pug')
+const debug = require('debug')('biton-client')
 
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || '127.0.0.1'
 
 console.log('biton webtorrent-hybrid client')
-
-let client = new bitonClient()
 
 // Setup express behind the http module
 let app = express()
@@ -51,14 +50,15 @@ server.on('error', function (e) {
     }
 });
 
-/*
-* Graceful shutdown. Close active connections. Delete logs and uncompleted chunks
-* */
 
+// Start a biton client
+let client = new bitonClient()
+
+
+// Graceful shutdown. Close active connections. Delete logs and uncompleted chunks
 function exitHandler(options = {}, exitCode = 0) {
     if (server.listening) {
         server.close()
-        app.close()
     }
     if (!client.destroyed) {
         console.log('Destroying biton wires...')
@@ -73,4 +73,7 @@ process.on('SIGINT', exitHandler.bind())
 process.on('SIGTERM', exitHandler.bind())
 process.on('SIGUSR1', exitHandler.bind())
 process.on('SIGUSR2', exitHandler.bind())
-process.on('uncaughtException', exitHandler.bind())
+process.on('uncaughtException', function(err) {
+    debug('uncaught exception: ', err.stack)
+    exitHandler(exitCode = 1)
+});
