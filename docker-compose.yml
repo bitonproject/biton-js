@@ -12,6 +12,7 @@ services:
     - .:/home/node/biton/
     - /home/node/node_modules/
     environment:
-    - NODE_ENV=production
+    - NODE_ENV=testing
     - HOST=0.0.0.0
     - INFOHASHPREFIX=test
+    - DEBUG=biton*

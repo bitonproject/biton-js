@@ -1,4 +1,8 @@
-FROM node:latest
+FROM node:12.16.2
+
+# If using node-alpine install wrtc dependencies
+# RUN apk --no-cache add python git ncurses openssl nss expat
+# RUN apk --no-cache --allow-untrusted -X https://apkproxy.herokuapp.com/sgerrand/alpine-pkg-glibc add glibc glibc-bin
 
 # Switch to the non-root user node
 USER node
