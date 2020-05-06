@@ -2,8 +2,8 @@
 
 const WebTorrent = require('webtorrent-hybrid')
 const debug = require('debug')('biton')
-const bitonExtension = require('./biton-ext.js')
-const sha1 = require('crypto-js/sha1.js')
+const crypto = require('./lib/crypto')
+const bitonExtension = require('./lib/biton-ext.js')
 
 const bitonSeed = 'biton'
 
@@ -31,7 +31,7 @@ class bitonClient extends WebTorrent {
         let combinedSeed = [this._infohashPrefix, swarmSeed, bitonSeed].filter(Boolean).join(' ');
         let challengeSeed = [combinedSeed, secret].filter(Boolean).join(' ')
 
-        let swarmInfohash = sha1(combinedSeed).toString();
+        let swarmInfohash = crypto.sha1.sync(combinedSeed);
         debug('joining biton swarm with swarm seed "%s" and info-hash "%s"', combinedSeed, swarmInfohash)
 
         let torrent = this.add(swarmInfohash, opts, ontorrent)
