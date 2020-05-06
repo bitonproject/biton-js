@@ -44,8 +44,8 @@ module.exports = function () {
         client.on('error', onError)
 
         // Create torrent
-        torrent = client.joinRootSwarm()
-        client.on('torrent', onTorrent.bind())
+        torrent = client.joinRootSwarm({ontorrent: onTorrent})
+        torrent.on('wire', onWire)
     }
 
     const $body = document.body
@@ -61,9 +61,7 @@ module.exports = function () {
             muted: true
         }
 
-        torrent.on('wire', onWire)
         torrent.on('done', onDone)
-
         torrent.on('download', throttle(onProgress, 250))
         torrent.on('upload', throttle(onProgress, 250))
         setInterval(onProgress, 5000)

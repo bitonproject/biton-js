@@ -24,17 +24,17 @@ class bitonClient extends WebTorrent {
      * @param  {string} swarmSeed
      * @param  {string} secret
      * @param  {Object=} opts
-     * @param  {function=} onseed called when torrent is seeding
+     * @param  {function=} ontorrent called when torrent is seeding
      * @return {torrent}
      */
-    joinSwarm (swarmSeed, secret, opts, onseed) {
+    joinSwarm (swarmSeed, secret, opts, ontorrent) {
         let combinedSeed = [this._infohashPrefix, swarmSeed, bitonSeed].filter(Boolean).join(' ');
         let challengeSeed = [combinedSeed, secret].filter(Boolean).join(' ')
 
         let swarmInfohash = sha1(combinedSeed).toString();
         debug('joining biton swarm with swarm seed "%s" and info-hash "%s"', combinedSeed, swarmInfohash)
 
-        let torrent = this.add(swarmInfohash, opts, onseed)
+        let torrent = this.add(swarmInfohash, opts, ontorrent)
 
         let ownId = this.peerId
         // Only use the biton extension for torrents that correspond to biton swarms
@@ -43,10 +43,12 @@ class bitonClient extends WebTorrent {
             debug('supported extensions: ' + JSON.stringify(wire.peerExtensions))
             wire.use(bitonExtension(challengeSeed, ownId))
         })
+
+        return torrent
     }
 
-    joinRootSwarm (secret, opts, onseed) {
-        this.joinSwarm('', secret, opts, onseed)
+    joinRootSwarm (secret, opts, ontorrent) {
+        return this.joinSwarm('', secret, opts, ontorrent)
     }
 
     /**
