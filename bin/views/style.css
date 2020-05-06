@@ -28,11 +28,8 @@ body.is-seed .show-leech {
     background-color: #154820;
     transition: .5s .5s background-color ease-in-out;
 }
-#hero {
-    background-color: #2a3749;
-}
+
 #status {
-    color: #fff;
     font-size: 17px;
     padding: 5px;
 }

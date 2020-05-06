@@ -44,7 +44,7 @@ module.exports = function () {
         client.on('error', onError)
 
         // Create torrent
-        torrent = client.joinRootSwarm({ontorrent: onTorrent})
+        torrent = client.joinRootSwarm('', {}, onTorrent)
         torrent.on('wire', onWire)
     }
 

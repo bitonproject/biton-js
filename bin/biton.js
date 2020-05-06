@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict'
+
 const bitonClient = require('../')
 const express = require('express')
 const http = require('http')
@@ -37,7 +39,7 @@ app.get('*', function (req, res) {
     res.status(404).send('404 Not Found')
 })
 
-server.listen(port=PORT, hostname=HOST, () => {
+server.listen(PORT, HOST, () => {
     console.log('HTTP server running at http://%s:%s', server.address().address, server.address().port)
 })
 
@@ -57,7 +59,7 @@ client.joinRootSwarm()
 
 
 // Graceful shutdown. Close active connections. Delete logs and uncompleted chunks
-function exitHandler(options = {}, exitCode = 0) {
+function exitHandler(options = {}) {
     if (server.listening) {
         server.close()
     }
@@ -65,6 +67,7 @@ function exitHandler(options = {}, exitCode = 0) {
         console.log('Destroying biton wires...')
         client.destroy()
     }
+    let exitCode = options.exitCode || 0
     process.exit(exitCode)
 }
 
@@ -76,5 +79,5 @@ process.on('SIGUSR1', exitHandler.bind())
 process.on('SIGUSR2', exitHandler.bind())
 process.on('uncaughtException', function(err) {
     debug('uncaught exception: ', err.stack)
-    exitHandler(exitCode = 1)
+    exitHandler({exitCode: 1})
 });

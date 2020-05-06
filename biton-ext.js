@@ -1,3 +1,5 @@
+'use strict'
+
 const { EventEmitter } = require('events')
 const bencode = require('bencode')
 const debug = require('debug')('biton-ext')
@@ -66,7 +68,7 @@ module.exports = (challengeSeed, ownId) => {
                     return
                 }
             } else {
-                debug('peer %s sent message: %s', this.wire.peerId, JSON.stringify(dict))
+                debug('peer %s sent message: %s', this._wire.peerId, JSON.stringify(dict))
             }
         }
 
