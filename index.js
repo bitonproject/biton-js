@@ -6,7 +6,6 @@ const bitonExtension = require('./biton-ext.js')
 const sha1 = require('crypto-js/sha1.js')
 
 const bitonSeed = 'biton'
-const infohashPrefix = process.env.INFOHASHPREFIX || ''
 
 /**
  * biton Client
@@ -15,6 +14,8 @@ const infohashPrefix = process.env.INFOHASHPREFIX || ''
 class bitonClient extends WebTorrent {
     constructor (opts={tracker: false, private: true, path: __dirname + './bitondb/'}) {
         super(opts)
+
+        this._infohashPrefix = process.env.INFOHASHPREFIX || opts.infohashPrefix || ''
         debug('new biton client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
     }
 
@@ -27,7 +28,7 @@ class bitonClient extends WebTorrent {
      * @return {torrent}
      */
     joinSwarm (swarmSeed, secret, opts, onseed) {
-        let combinedSeed = [infohashPrefix, swarmSeed, bitonSeed].filter(Boolean).join(' ');
+        let combinedSeed = [this._infohashPrefix, swarmSeed, bitonSeed].filter(Boolean).join(' ');
         let challengeSeed = [combinedSeed, secret].filter(Boolean).join(' ')
 
         let swarmInfohash = sha1(combinedSeed).toString();

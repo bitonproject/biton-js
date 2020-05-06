@@ -21,7 +21,7 @@ npm install
 ### Running biton
 
 ```shell
-DEBUG=* INFOHASHPREFIX=test node bin/biton.js
+DEBUG=biton* INFOHASHPREFIX=test node bin/biton.js
 ```
 
 Or, install the biton hybrid client and make it available with the ```biton```

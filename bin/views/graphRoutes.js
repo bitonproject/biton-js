@@ -38,8 +38,8 @@ module.exports = function () {
         graph = window.graph = new P2PGraph('.torrent-graph')
         graph.add({ id: 'You', name: 'You', me: true })
 
-        // Create client
-        const client = window.client = new bitonClient({private: false})
+        // Create client for the test network
+        const client = window.client = new bitonClient({private: false, infohashPrefix: 'test'})
         client.on('warning', onWarning)
         client.on('error', onError)
 
@@ -56,32 +56,10 @@ module.exports = function () {
     const $remaining = document.querySelector('#remaining')
 
     function onTorrent () {
-        const file = torrent.files.find(function (file) {
-            return file.name.endsWith('.mp4')
-        })
-
         const opts = {
             autoplay: true,
             muted: true
         }
-
-        const videoOverlay = document.querySelector('.videoOverlay')
-
-        file.appendTo('#videoWrap .video', opts, function (err, elem) {
-            if (err) return onError(err)
-            elem.parentElement.classList.add('canplay')
-            elem.parentElement.classList.add('muted')
-
-            videoOverlay.addEventListener('click', onClick1)
-
-            // First click unmutes the video!
-            function onClick1 () {
-                videoOverlay.removeEventListener('click', onClick1)
-
-                elem.muted = false
-                elem.parentElement.classList.remove('muted')
-            }
-        })
 
         torrent.on('wire', onWire)
         torrent.on('done', onDone)
