@@ -52,7 +52,7 @@ server.on('error', function (e) {
 
 
 // Start a biton client
-let client = new bitonClient()
+let client = new bitonClient({private: false})
 client.joinRootSwarm()
 
 

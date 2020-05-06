@@ -39,7 +39,7 @@ module.exports = function () {
         graph.add({ id: 'You', name: 'You', me: true })
 
         // Create client
-        const client = window.client = new bitonClient()
+        const client = window.client = new bitonClient({private: false})
         client.on('warning', onWarning)
         client.on('error', onError)
 

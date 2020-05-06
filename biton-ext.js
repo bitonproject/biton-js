@@ -8,7 +8,7 @@ const extName = 'biton'
 const BITFIELD_GROW = 1E3
 const PIECE_LENGTH = 1 << 14 // 16 KiB
 
-module.exports = (challengeSeed) => {
+module.exports = (challengeSeed, ownId) => {
     class bitonExtension extends EventEmitter {
         constructor(wire) {
             debug('load biton extension on wire with peerId %s', wire.peerId)
@@ -17,22 +17,25 @@ module.exports = (challengeSeed) => {
             this._wire = wire
             this._passedChallenge = false
             this._challengeSeed = challengeSeed
+            this._ownId = ownId
         }
 
         onHandshake (infoHash, peerId, extensions) {
             this._infoHash = infoHash
+            this._peerId = peerId
         }
 
         onExtendedHandshake (handshake) {
+            // TODO Do not expose biton extension on handshake messages
             if (!handshake.m || !handshake.m.biton) {
                 return this.emit('warning', new Error('Peer does not support biton'))
             }
 
-            // TODO tie challenges to the IP:PORT of own and remote peer
-            this._ownSolution = sha1(this._challengeSeed).toString() //[this._challengeSeed, this._wire.peerId, this._wire.remoteAddress].join(' ')).toString()
-            this._remoteChallenge = sha1(this._challengeSeed).toString() //[this._challengeSeed, this._wire.remoteAddress, this._wire.peerId].join(' ')).toString()
+            // TODO tie challenges to the IP:PORT of own and remote peers
+            this._ownSolution = sha1([this._challengeSeed, this._ownId, this._peerId].join(' ')).toString()
+            this._remoteChallenge = sha1([this._challengeSeed, this._peerId, this._ownId].join(' ')).toString()
 
-            debug('sending challenge response to peer %s', this._wire.peerId)
+            debug('attempting the challenge of peer %s', this._peerId)
             let dict = { challenge : this._remoteChallenge }
             this._send(dict)
         }
