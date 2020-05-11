@@ -1,3 +1,7 @@
+const debug = require('debug')('biton-browser')
+localStorage.debug = 'biton*'
+const consoleLogHTML = require('console-log-html');
+
 const bitonClient = require('../../')
 
 const moment = require('moment')
@@ -8,35 +12,30 @@ const throttle = require('throttleit')
 module.exports = function () {
     let graph
     let hero = document.querySelector('#hero')
+
+    const $log = document.querySelector('#clientLog')
+    consoleLogHTML.connect($log)
+
     let torrent
 
-    // Don't start the demo automatically on mobile.
-    if (window.innerWidth <= 899) {
-        let beginButton = document.createElement('a')
-        beginButton.href = '#'
-        beginButton.id = 'begin'
-        beginButton.className = 'btn large'
-        beginButton.textContent = 'Begin Demo'
+    // Don't start the demo automatically.
+    let $startBtn = document.querySelector('#startBtn')
 
-        beginButton.addEventListener('click', function onClick () {
-            beginButton.removeEventListener('click', onClick, false)
-            beginButton.parentNode.removeChild(beginButton)
-            beginButton = null
+    $startBtn.addEventListener('click', function onClick() {
+        $startBtn.removeEventListener('click', onClick, false)
+        $startBtn.parentNode.removeChild($startBtn)
+        $startBtn = null
 
-            init()
-        })
-        hero.appendChild(beginButton)
-    } else {
         init()
-    }
+    })
 
-    function init () {
+    function init() {
         // Display video and related information.
         hero.className = 'loading'
         hero = null
 
         graph = window.graph = new P2PGraph('.torrent-graph')
-        graph.add({ id: 'You', name: 'You', me: true })
+        graph.add({id: 'You', name: 'You', me: true})
 
         // Create client for the test network
         const client = window.client = new bitonClient({private: false, infohashPrefix: 'test'})
@@ -55,7 +54,8 @@ module.exports = function () {
     const $total = document.querySelector('#total')
     const $remaining = document.querySelector('#remaining')
 
-    function onTorrent () {
+
+    function onTorrent() {
         const opts = {
             autoplay: true,
             muted: true
@@ -68,17 +68,23 @@ module.exports = function () {
         onProgress()
     }
 
-    function onWire (wire) {
+    function onWire(wire) {
         const id = wire.peerId.toString()
-        graph.add({ id: id, name: wire.remoteAddress || 'Unknown' })
+        graph.add({id: id, name: wire.remoteAddress || 'Unknown'})
         graph.connect('You', id)
+        onPeerUpdate()
         wire.once('close', function () {
             graph.disconnect('You', id)
             graph.remove(id)
+            onPeerUpdate()
         })
     }
 
-    function onProgress () {
+    function onPeerUpdate() {
+        $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
+    }
+
+    function onProgress() {
         const percent = Math.round(torrent.progress * 100 * 100) / 100
         $progressBar.style.width = percent + '%'
         $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
@@ -96,21 +102,22 @@ module.exports = function () {
         $remaining.innerHTML = remaining
     }
 
-    function onDone () {
+    function onDone() {
         $body.className += ' is-seed'
         onProgress()
     }
 
-    function onError (err) {
+    function onError(err) {
         if (err) {
             window.alert(err)
             console.error(err)
         }
     }
 
-    function onWarning (err) {
+    function onWarning(err) {
         if (err) {
             console.error(err)
         }
     }
+
 }
