@@ -17,20 +17,16 @@ html(lang='en')
             #progressBar
             h1 biton browser-client (connecting to 'test' network)
             h2 DO NOT USE - This demo does not provide any security or privacy properties
+            #startBtn
+                a(href='#'): button(type='button') Start biton
             #status.clearfix
                 #statusLeft
                     span.show-leech #{ 'Connected to ' }
-                    span.show-leech #{ ' from ' }
-                    span.show-seed #{ ' to ' }
                     code#numPeers 0 peers
                     | #{ '. ' }
-                #statusRight
-                    code#downloaded
-                    | #{ ' of '}
-                    code#total
-                    | #{ ' — '}
-                    span#remaining
             #svgWrap
                 div.torrent-graph
+            #clientLog
+                div.log
 
     script(src='/bundle.js')

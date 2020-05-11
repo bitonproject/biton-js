@@ -1,6 +1,6 @@
 // View-specific code
 switch (window.location.pathname) {
-    case '/browser-client':
-        require('./graphRoutes')()
+    case '/biton-browser':
+        require('./biton-browser')()
         break;
 }

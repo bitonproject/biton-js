@@ -6,7 +6,7 @@ const bitonClient = require('../')
 const express = require('express')
 const http = require('http')
 const pug = require('pug')
-const debug = require('debug')('biton-client')
+const debug = require('debug')('biton-hybrid')
 
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || '127.0.0.1'
@@ -30,8 +30,8 @@ app.get('/', function (req, res) {
     res.render('home')
 })
 
-app.get('/browser-client', function (req, res) {
-    res.render('browser-client')
+app.get('/biton-browser', function (req, res) {
+    res.render('biton-browser')
 })
 
 // Handle 404 for unrecognized URLs
