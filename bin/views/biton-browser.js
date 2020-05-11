@@ -1,6 +1,6 @@
 const debug = require('debug')('biton-browser')
 localStorage.debug = 'biton*'
-const consoleLogHTML = require('console-log-html');
+const consoleLogHTML = require('console-log-html')
 
 const bitonClient = require('../../')
 
@@ -10,114 +10,112 @@ const prettierBytes = require('prettier-bytes')
 const throttle = require('throttleit')
 
 module.exports = function () {
-    let graph
-    let hero = document.querySelector('#hero')
+  let graph
+  let hero = document.querySelector('#hero')
 
-    const $log = document.querySelector('#clientLog')
-    consoleLogHTML.connect($log)
+  const $log = document.querySelector('#clientLog')
+  consoleLogHTML.connect($log)
 
-    let torrent
+  let torrent
 
-    // Don't start the demo automatically.
-    let $startBtn = document.querySelector('#startBtn')
+  // Don't start the demo automatically.
+  let $startBtn = document.querySelector('#startBtn')
 
-    $startBtn.addEventListener('click', function onClick() {
-        $startBtn.removeEventListener('click', onClick, false)
-        $startBtn.parentNode.removeChild($startBtn)
-        $startBtn = null
+  $startBtn.addEventListener('click', function onClick () {
+    $startBtn.removeEventListener('click', onClick, false)
+    $startBtn.parentNode.removeChild($startBtn)
+    $startBtn = null
 
-        init()
+    init()
+  })
+
+  function init () {
+    // Display video and related information.
+    hero.className = 'loading'
+    hero = null
+
+    graph = window.graph = new P2PGraph('.torrent-graph')
+    graph.add({ id: 'You', name: 'You', me: true })
+
+    // Create client for the test network
+    const client = window.client = new bitonClient({ private: false, infohashPrefix: 'test' })
+    client.on('warning', onWarning)
+    client.on('error', onError)
+
+    // Create torrent
+    torrent = client.joinRootSwarm('', {}, onTorrent)
+    torrent.on('wire', onWire)
+  }
+
+  const $body = document.body
+  const $progressBar = document.querySelector('#progressBar')
+  const $numPeers = document.querySelector('#numPeers')
+  const $downloaded = document.querySelector('#downloaded')
+  const $total = document.querySelector('#total')
+  const $remaining = document.querySelector('#remaining')
+
+  function onTorrent () {
+    const opts = {
+      autoplay: true,
+      muted: true
+    }
+
+    torrent.on('done', onDone)
+    torrent.on('download', throttle(onProgress, 250))
+    torrent.on('upload', throttle(onProgress, 250))
+    setInterval(onProgress, 5000)
+    onProgress()
+  }
+
+  function onWire (wire) {
+    const id = wire.peerId.toString()
+    graph.add({ id: id, name: wire.remoteAddress || 'Unknown' })
+    graph.connect('You', id)
+    onPeerUpdate()
+    wire.once('close', function () {
+      graph.disconnect('You', id)
+      graph.remove(id)
+      onPeerUpdate()
     })
+  }
 
-    function init() {
-        // Display video and related information.
-        hero.className = 'loading'
-        hero = null
+  function onPeerUpdate () {
+    $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
+  }
 
-        graph = window.graph = new P2PGraph('.torrent-graph')
-        graph.add({id: 'You', name: 'You', me: true})
+  function onProgress () {
+    const percent = Math.round(torrent.progress * 100 * 100) / 100
+    $progressBar.style.width = percent + '%'
+    $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
 
-        // Create client for the test network
-        const client = window.client = new bitonClient({private: false, infohashPrefix: 'test'})
-        client.on('warning', onWarning)
-        client.on('error', onError)
+    $downloaded.innerHTML = prettierBytes(torrent.downloaded)
+    $total.innerHTML = prettierBytes(torrent.length)
 
-        // Create torrent
-        torrent = client.joinRootSwarm('', {}, onTorrent)
-        torrent.on('wire', onWire)
+    let remaining
+    if (torrent.done) {
+      remaining = 'Done.'
+    } else {
+      remaining = moment.duration(torrent.timeRemaining / 1000, 'seconds').humanize()
+      remaining = remaining[0].toUpperCase() + remaining.substring(1) + ' remaining.'
     }
+    $remaining.innerHTML = remaining
+  }
 
-    const $body = document.body
-    const $progressBar = document.querySelector('#progressBar')
-    const $numPeers = document.querySelector('#numPeers')
-    const $downloaded = document.querySelector('#downloaded')
-    const $total = document.querySelector('#total')
-    const $remaining = document.querySelector('#remaining')
+  function onDone () {
+    $body.className += ' is-seed'
+    onProgress()
+  }
 
-
-    function onTorrent() {
-        const opts = {
-            autoplay: true,
-            muted: true
-        }
-
-        torrent.on('done', onDone)
-        torrent.on('download', throttle(onProgress, 250))
-        torrent.on('upload', throttle(onProgress, 250))
-        setInterval(onProgress, 5000)
-        onProgress()
+  function onError (err) {
+    if (err) {
+      window.alert(err)
+      console.error(err)
     }
+  }
 
-    function onWire(wire) {
-        const id = wire.peerId.toString()
-        graph.add({id: id, name: wire.remoteAddress || 'Unknown'})
-        graph.connect('You', id)
-        onPeerUpdate()
-        wire.once('close', function () {
-            graph.disconnect('You', id)
-            graph.remove(id)
-            onPeerUpdate()
-        })
+  function onWarning (err) {
+    if (err) {
+      console.error(err)
     }
-
-    function onPeerUpdate() {
-        $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
-    }
-
-    function onProgress() {
-        const percent = Math.round(torrent.progress * 100 * 100) / 100
-        $progressBar.style.width = percent + '%'
-        $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
-
-        $downloaded.innerHTML = prettierBytes(torrent.downloaded)
-        $total.innerHTML = prettierBytes(torrent.length)
-
-        let remaining
-        if (torrent.done) {
-            remaining = 'Done.'
-        } else {
-            remaining = moment.duration(torrent.timeRemaining / 1000, 'seconds').humanize()
-            remaining = remaining[0].toUpperCase() + remaining.substring(1) + ' remaining.'
-        }
-        $remaining.innerHTML = remaining
-    }
-
-    function onDone() {
-        $body.className += ' is-seed'
-        onProgress()
-    }
-
-    function onError(err) {
-        if (err) {
-            window.alert(err)
-            console.error(err)
-        }
-    }
-
-    function onWarning(err) {
-        if (err) {
-            console.error(err)
-        }
-    }
-
+  }
 }

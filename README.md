@@ -43,6 +43,16 @@ cd biton
 npm install
 ```
 
+### Compile browser client resources
+
+```shell
+
+npm run-script build
+```
+
+This will compile `views/index.js` and its dependencies into
+`bin/public/bundle.js`.
+
 
 ## Usage
 
@@ -53,7 +63,7 @@ DEBUG=biton* INFOHASHPREFIX=test node bin/biton.js
 ```
 
 The Web interface is listening at `http://localhost:5000`. You can spawn a
-biton browser client in the network with `test` infoHash prefix by visiting
+biton browser client in the network with the infoHash prefix `test` by visiting
 `http://localhost:5000/biton-browser`. Each tab is an independent biton client,
 so you can open multiple tabs for simulating a swarm of peers.
 
@@ -78,10 +88,10 @@ biton
 ```
 
 This has to be executed once and will keep track of your local modifications
-(creates a symlink for `node ./bin/biton`).
+(creates a symlink for `node ./bin/biton.js`).
 
 
-#### Running in Docker
+### Running in Docker
 
 Build the Docker image and start a container with the name `biton-hybrid-client`
 by executing:
@@ -90,7 +100,7 @@ by executing:
 docker-compose up --build
 ```
 
-The respective Docker files are:
+The respective files are:
 
 * `Dockerfile` an image for the biton hybrid client
 * `docker-compose.yml` a provisioning script for the above image

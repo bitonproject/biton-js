@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx standard",
     "build": "browserify bin/views/*.js -o bin/public/bundle.js",
     "watch": "watchify bin/views/*.js -o bin/public/bundle.js --debug --verbose"
   },
@@ -25,6 +25,7 @@
     "console-log-html": "^2.0.2",
     "p2p-graph": "^2.0.0",
     "prettier-bytes": "^1.0.4",
+    "standard": "^14.3.3",
     "throttleit": "^1.0.0",
     "watchify": "^3.11.1"
   },
@@ -33,5 +34,10 @@
   "homepage": "https://bitonproject.org",
   "bin": {
     "biton": "./bin/biton.js"
+  },
+  "standard": {
+    "ignore": [
+      "bin/public/bundle.js"
+    ]
   }
 }
