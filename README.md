@@ -1,5 +1,12 @@
 # The biton overlay network
+ [![travis][travis-image]][travis-url] [![javascript style guide][standard-image]][standard-url]
 
+[travis-image]: https://img.shields.io/travis/bitonproject/biton/master.svg
+[travis-url]: https://travis-ci.org/bitonproject/biton
+[standard-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
+[standard-url]: https://standardjs.com
+
+### Bypassing information controls with biton
 https://bitonproject.org
 
 biton is a decentralized network for bypassing online censorship and
