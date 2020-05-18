@@ -11,6 +11,7 @@ const path = require('path')
 
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || '127.0.0.1'
+const INFOHASHPREFIX = process.env.INFOHASHPREFIX || ''
 
 console.log('biton webtorrent-hybrid client')
 
@@ -54,7 +55,7 @@ server.on('error', function (e) {
 })
 
 // Start a biton client
-const client = new bitonClient({ private: false })
+const client = new bitonClient({ private: false, infohashPrefix: INFOHASHPREFIX })
 client.joinRootSwarm()
 
 // Graceful shutdown. Close active connections. Delete logs and uncompleted chunks

@@ -24,8 +24,8 @@ This repository hosts the implementation of biton as an extension to
 
   *  [`lib/biton-ext.js`](lib/biton-ext.js) the biton extension
   *  [`index.js`](index.js) biton hybrid client integrating the biton extension
-  *  [`bin/biton.js`](bin/biton.js) command line and Web interface for the biton
-  hybrid client
+  *  [`bin/biton-hybrid-interface.js`](bin/biton-hybrid-interface.js) command
+  line and Web interface for the biton hybrid client
   *  [`bin/views/biton-browser.js`](bin/views/biton-browser.js) biton browser
   client
 
@@ -73,7 +73,7 @@ biton
 ```
 
 This has to be executed once and will keep track of your local modifications
-(creates a symlink for `node bin/biton.js`).
+(creates a symlink for `node bin/biton-hybrid-interface.js`).
 
 
 ## Usage
@@ -81,7 +81,7 @@ This has to be executed once and will keep track of your local modifications
 ### Running biton hybrid
 
 ```shell
-DEBUG=biton* INFOHASHPREFIX=test node bin/biton.js
+DEBUG=biton* INFOHASHPREFIX=test node bin/biton-hybrid-interface.js
 ```
 
 The Web interface is listening at <http://localhost:5000>. You can spawn a

@@ -69,8 +69,8 @@ class bitonClient extends WebTorrent {
 
     super(opts)
 
-    this._infohashPrefix = process.env.INFOHASHPREFIX || opts.infohashPrefix || ''
     this._keypair = keypair
+    this._infohashPrefix = opts.infohashPrefix || ''
     debug('new biton client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
   }
 
