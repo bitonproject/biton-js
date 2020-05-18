@@ -14,10 +14,10 @@
     "debug": "^4.1.1",
     "events": "^3.1.0",
     "express": "^4.17.1",
+    "noise-protocol": "^2.0.0",
     "pug": "^2.0.4",
     "simple-sha1": "^3.0.1",
-    "sodium-native": "^3.1.1",
-    "sodium-plus": "^0.7.1",
+    "sodium-universal": "^2.0.0",
     "webtorrent-hybrid": "^4.0.1"
   },
   "devDependencies": {
