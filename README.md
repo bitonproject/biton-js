@@ -23,7 +23,8 @@ This repository hosts the implementation of biton as an extension to
 [WebTorrent](https://webtorrent.io), divided into the following modules:
 
   *  [`lib/biton-ext.js`](lib/biton-ext.js) the biton extension
-  *  [`index.js`](index.js) biton hybrid client integrating the biton extension
+  *  [`biton-hybrid.js`](biton-hybrid.js) biton hybrid client integrating the
+  biton extension
   *  [`bin/biton-hybrid-interface.js`](bin/biton-hybrid-interface.js) command
   line and Web interface for the biton hybrid client
   *  [`bin/views/biton-browser.js`](bin/views/biton-browser.js) biton browser

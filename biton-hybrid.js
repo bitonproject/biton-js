@@ -5,6 +5,7 @@ const WebTorrent = require('webtorrent-hybrid')
 const crypto = require('./lib/crypto')
 const sha1 = require('simple-sha1')
 const bitonExtension = require('./lib/biton-ext.js')
+const path = require('path')
 
 const bitonSeed = 'biton'
 
@@ -33,11 +34,11 @@ class bitonClient extends WebTorrent {
 
     // Set default WebTorrent options
     // Disable trackers
-    opts.tracker = opts.tracker || false
+    // opts.tracker = opts.tracker || false
     // Do not share torrent infohashes over MainlineDHT or PEX (BEP11)
-    opts.private = opts.private || true
+    opts.private = (typeof opts.private === 'boolean') ? opts.private : true
     // Where to store torrents
-    opts.path = opts.path || __dirname + './bitondb/'
+    opts.path = opts.path || path.join(__dirname + './bitondb/')
     // Disable Web Seeds (BEP19)
     opts.webSeeds = opts.webSeeds || false
 
@@ -65,7 +66,7 @@ class bitonClient extends WebTorrent {
     let peerIdBuffer = Buffer.alloc(PEERIDLEN)
     peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX, 'utf8'),
       Buffer.from(keypair.publicKey.toString('base64'))], peerIdBuffer.length)
-    opts.peerId = peerIdBuffer.toString('utf8')
+    opts.peerId = peerIdBuffer
 
     super(opts)
 
