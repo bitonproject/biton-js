@@ -63,7 +63,8 @@ class bitonClient extends WebTorrent {
 
     // peerId = VERSION_PREFIX[0,10] + publicKey[0,8]
     let peerIdBuffer = Buffer.alloc(PEERIDLEN)
-    peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX, 'utf8'), Buffer.from(keypair.publicKey.toString('base64'))], peerIdBuffer.length)
+    peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX, 'utf8'),
+      Buffer.from(keypair.publicKey.toString('base64'))], peerIdBuffer.length)
     opts.peerId = peerIdBuffer.toString('utf8')
 
     super(opts)
@@ -90,12 +91,12 @@ class bitonClient extends WebTorrent {
 
     const torrent = this.add(swarmInfohash, opts, ontorrent)
 
-    const ownId = this.peerId
+    const ownPeerId = this.peerId
     // Only use the biton extension for torrents that correspond to biton swarms
     torrent.on('wire', function (wire, addr) {
       debug('swarm "%s": connected to peer with address %s', combinedSeed, addr)
       debug('supported extensions: ' + JSON.stringify(wire.peerExtensions))
-      wire.use(bitonExtension(challengeSeed, ownId))
+      wire.use(bitonExtension(challengeSeed, ownPeerId))
     })
 
     return torrent

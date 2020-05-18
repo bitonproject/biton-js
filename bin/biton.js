@@ -2,11 +2,12 @@
 
 'use strict'
 
+const debug = require('debug')('biton-hybrid')
 const bitonClient = require('../')
 const express = require('express')
 const http = require('http')
 const pug = require('pug')
-const debug = require('debug')('biton-hybrid')
+const path = require('path')
 
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || '127.0.0.1'
@@ -18,10 +19,10 @@ const app = express()
 const server = http.createServer(app)
 
 // Serve static files in the public directory
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(path.join(__dirname, '/public')))
 
 // Setup pug for rendering views
-app.set('views', __dirname + '/views/')
+app.set('views', path.join(__dirname, '/views/'))
 app.set('view engine', 'pug')
 app.engine('pug', pug.renderFile)
 

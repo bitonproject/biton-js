@@ -116,4 +116,5 @@ The respective files are:
 image
 
 
-> [BSD 3-Clause License](LICENSE)
+## License
+[BSD 3-Clause](LICENSE)
