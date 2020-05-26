@@ -3,6 +3,7 @@ localStorage.debug = 'biton*'
 const consoleLogHTML = require('console-log-html')
 
 const bitonClient = require('../../')
+const bitonCrypto = require('../../lib/crypto')
 
 const moment = require('moment')
 const P2PGraph = require('p2p-graph')
@@ -37,14 +38,24 @@ module.exports = function () {
     graph = window.graph = new P2PGraph('.torrent-graph')
     graph.add({ id: 'You', name: 'You', me: true })
 
-    // Create client for the test network
-    const client = window.client = new bitonClient({ private: false, infohashPrefix: 'test' })
-    client.on('warning', onWarning)
-    client.on('error', onError)
+    bitonCrypto.ready(function () {
+      let seed, keypair
 
-    // Create torrent
-    torrent = client.joinRootSwarm('', {}, onTorrent)
-    torrent.on('wire', onWire)
+      debug('Generating node keypair with seed %s', seed)
+      keypair = bitonCrypto.create_keypair(seed)
+
+      let hexKey = Buffer.from(keypair.x25519.public).toString('hex')
+      debug('node public key %s', hexKey)
+
+      // Create client for the test network
+      const client = window.client = new bitonClient({ private: false, infohashPrefix: 'test', keypair: keypair })
+      client.on('warning', onWarning)
+      client.on('error', onError)
+
+      // Create torrent
+      torrent = client.joinRootSwarm('', {}, onTorrent)
+      torrent.on('wire', onWire)
+    }())
   }
 
   const $body = document.body

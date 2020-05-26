@@ -11,13 +11,15 @@
   },
   "dependencies": {
     "bencode": "^2.0.1",
+    "blake2.wasm": "^0.1.0",
     "debug": "^4.1.1",
+    "ed25519-to-x25519.wasm": "^0.2.0",
     "events": "^3.1.0",
     "express": "^4.17.1",
-    "noise-protocol": "^2.0.0",
+    "noise-c.wasm": "^0.2.0",
     "pug": "^2.0.4",
     "simple-sha1": "^3.0.1",
-    "sodium-universal": "^2.0.0",
+    "supercop.wasm": "^5.0.1",
     "webtorrent-hybrid": "^4.0.1"
   },
   "devDependencies": {
@@ -25,7 +27,7 @@
     "console-log-html": "^2.0.2",
     "p2p-graph": "^2.0.0",
     "prettier-bytes": "^1.0.4",
-    "standard": "^14.3.3",
+    "standard": "^14.3.4",
     "throttleit": "^1.0.0",
     "watchify": "^3.11.1"
   },

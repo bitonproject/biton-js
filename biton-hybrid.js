@@ -2,17 +2,14 @@
 
 const debug = require('debug')('biton')
 const WebTorrent = require('webtorrent-hybrid')
-const crypto = require('./lib/crypto')
 const sha1 = require('simple-sha1')
-const bitonExtension = require('./lib/biton-ext.js')
+const bitonCrypto = require('./lib/crypto')
+const bitonExtension = require('./lib/biton-ext')
 const path = require('path')
 
-const bitonSeed = 'biton'
+const bitonSeed = 'biton0'
 
 const VERSION = WebTorrent.VERSION
-
-// Length of the node keypair seed in bytes
-const HDSEEDLEN = crypto.noise.SEEDLEN || crypto.sodium.crypto_kx_SEEDBYTES
 
 // Length of peerId in bytes
 const PEERIDLEN = 20
@@ -42,37 +39,30 @@ class bitonClient extends WebTorrent {
     // Disable Web Seeds (BEP19)
     opts.webSeeds = opts.webSeeds || false
 
-    let keypair
-    debug('Generating node keypair')
-    if (opts.seed) {
-      try {
-        let hdSeedBytes = Buffer.from(opts.seed, 0, HDSEEDLEN)
-        keypair = crypto.noise.seedKeygen(hdSeedBytes)
-      } catch (e) {
-        debug('noise seedKeygen failed with ', e)
-        console.log('Could not generate keypair from given seed. A valid seed is %s bytes', crypto.noise.SEEDLEN)
-      }
-    }
-
-    if (keypair === undefined) {
-      console.log('Generating a random node keypair')
-      keypair = crypto.noise.keygen()
-    }
-
-    let hexKey = keypair.publicKey.toString('base64').toString('hex')
-    debug('node public key %s', hexKey)
-
-    // peerId = VERSION_PREFIX[0,10] + publicKey[0,8]
-    let peerIdBuffer = Buffer.alloc(PEERIDLEN)
-    peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX, 'utf8'),
-      Buffer.from(keypair.publicKey.toString('base64'))], peerIdBuffer.length)
-    opts.peerId = peerIdBuffer
-
     super(opts)
 
-    this._keypair = keypair
-    this._infohashPrefix = opts.infohashPrefix || ''
-    debug('new biton client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
+    bitonCrypto.ready(function () {
+      let keypair = opts.keypair
+      if (!keypair) {
+        let seed = opts.seed || null
+        debug('Generating node keypair with seed %s', seed)
+        keypair = bitonCrypto.create_keypair(seed)
+      }
+
+      let hexKey = Buffer.from(keypair.x25519.public, 'base64').toString('hex')
+      debug('node public key %s', hexKey)
+
+      // BitTorrent client peerId = VERSION_PREFIX[0,10] + publicKey[0,8]
+      let peerIdBuffer = Buffer.alloc(PEERIDLEN)
+      peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX, 'utf8'),
+        Buffer.from(keypair.x25519.public, 'base64')], peerIdBuffer.length)
+
+      this.peerId = peerIdBuffer.toString('hex')
+      this._keypair = keypair
+      this._hexKey = hexKey
+      this._infohashPrefix = opts.infohashPrefix || ''
+      debug('new biton client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
+    }())
   }
 
   /**

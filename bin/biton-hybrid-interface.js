@@ -54,10 +54,6 @@ server.on('error', function (e) {
   }
 })
 
-// Start a biton client
-const client = new bitonClient({ private: false, infohashPrefix: INFOHASHPREFIX })
-client.joinRootSwarm()
-
 // Graceful shutdown. Close active connections. Delete logs and uncompleted chunks
 function exitHandler (options = {}) {
   if (server.listening) {
@@ -81,3 +77,7 @@ process.on('uncaughtException', function (err) {
   debug('uncaught exception: ', err.stack)
   exitHandler({ exitCode: 1 })
 })
+
+// Start a biton client
+const client = new bitonClient({ private: false, infohashPrefix: INFOHASHPREFIX })
+client.joinRootSwarm()
