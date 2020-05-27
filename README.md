@@ -19,13 +19,13 @@ such as protocol fingerprinting, traffic analysis, and bridge enumeration.
 
 ### Project structure
 
-This repository hosts the implementation of biton as an extension to
+This monorepo hosts the implementation of biton as an extension to
 [WebTorrent](https://webtorrent.io), divided into the following modules:
 
   *  [`lib/biton-ext.js`](lib/biton-ext.js) the biton extension
   *  [`biton-hybrid.js`](biton-hybrid.js) biton hybrid client integrating the
   biton extension
-  *  [`bin/biton-hybrid-interface.js`](bin/biton-hybrid-interface.js) command
+  *  [`bin/biton-hybrid-app.js`](bin/biton-hybrid-app.js) command
   line and Web interface for the biton hybrid client
   *  [`bin/views/biton-browser.js`](bin/views/biton-browser.js) biton browser
   client
@@ -74,7 +74,7 @@ biton
 ```
 
 This has to be executed once and will keep track of your local modifications
-(creates a symlink for `node bin/biton-hybrid-interface.js`).
+(creates a symlink for `node bin/biton-hybrid-app.js`).
 
 
 ## Usage
@@ -82,7 +82,7 @@ This has to be executed once and will keep track of your local modifications
 ### Running biton hybrid
 
 ```shell
-DEBUG=biton* INFOHASHPREFIX=test node bin/biton-hybrid-interface.js
+DEBUG=biton* INFOHASHPREFIX=test node bin/biton-hybrid-app.js
 ```
 
 The Web interface is listening at <http://localhost:5000>. You can spawn a

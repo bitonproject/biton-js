@@ -1,6 +1,6 @@
 'use strict'
 
-const debug = require('debug')('biton')
+const debug = require('debug')('biton-hybrid')
 const WebTorrent = require('webtorrent-hybrid')
 const sha1 = require('simple-sha1')
 const bitonCrypto = require('./lib/crypto')

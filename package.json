@@ -35,7 +35,7 @@
   "license": "BSD-3-Clause",
   "homepage": "https://bitonproject.org",
   "bin": {
-    "biton": "bin/biton-hybrid-interface.js"
+    "biton": "bin/biton-hybrid-app.js"
   },
   "standard": {
     "ignore": [
