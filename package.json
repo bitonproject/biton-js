@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "browserify": "^16.5.1",
-    "console-log-html": "^2.0.2",
     "p2p-graph": "^2.0.0",
     "prettier-bytes": "^1.0.4",
     "standard": "^14.3.4",

@@ -79,16 +79,13 @@ This has to be executed once and will keep track of your local modifications
 
 ## Usage
 
-### Running biton hybrid
+### Running biton-hybrid-app
 
 ```shell
 DEBUG=biton* INFOHASHPREFIX=test node bin/biton-hybrid-app.js
 ```
 
-The Web interface is listening at <http://localhost:5000>. You can spawn a
-biton browser client in the network with the infoHash prefix `test` by visiting
-<http://localhost:5000/biton-browser>. Each tab is an independent biton client,
-so you can open multiple tabs for simulating a swarm of peers.
+The Web interface is listening at <http://localhost:5000>.
 
 
 ### Environment variables
@@ -99,6 +96,20 @@ so you can open multiple tabs for simulating a swarm of peers.
 | `HOST`    | The Web interface host address.                 |
 | `PORT`    | The Web interface listening port.               |
 | `DEBUG`   | Enables/disables specific debugging namespaces. |
+
+
+### Running biton-browser
+
+You can spawn a biton browser client in the network with the infoHash prefix
+`test` by visiting <http://localhost:5000/biton-browser>. Each tab is an
+independent biton client, so you can open multiple tabs for simulating a swarm
+of peers.
+
+If you are visiting a local `biton-hybrid-app` with Firefox, make sure that you
+are not blocking all third-party cookies (custom enhanced tracking protection),
+as this prevents connections to BitTorrent trackers. You can whitelist localhost
+via the shield in the URL address bar
+([instructions here](https://support.mozilla.org/kb/enhanced-tracking-protection-firefox-preview#w_turn-protections-onoff-for-individual-sites)).
 
 
 ### Running in Docker

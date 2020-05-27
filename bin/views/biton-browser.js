@@ -1,6 +1,5 @@
 const debug = require('debug')('biton-browser')
 localStorage.debug = 'biton*'
-const consoleLogHTML = require('console-log-html')
 
 const bitonClient = require('../../')
 const bitonCrypto = require('../../lib/crypto')
@@ -15,7 +14,6 @@ module.exports = function () {
   let hero = document.querySelector('#hero')
 
   const $log = document.querySelector('#clientLog')
-  consoleLogHTML.connect($log)
 
   let client, torrent
 
