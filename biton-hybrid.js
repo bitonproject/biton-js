@@ -7,9 +7,10 @@ const bitonCrypto = require('./lib/crypto')
 const bitonExtension = require('./lib/biton-ext')
 const path = require('path')
 
-const bitonSeed = 'biton0'
+const bitonVERSION = 0
+const bitonSEED = 'biton' + bitonVERSION
 
-const VERSION = WebTorrent.VERSION
+const WEBTORRENT_VERSION = WebTorrent.VERSION
 
 // Length of peerId in bytes
 const PEERIDLEN = 20
@@ -17,7 +18,8 @@ const PEERIDLEN = 20
 // Generate nodeId version prefix as in WebTorrent
 // https://github.com/webtorrent/webtorrent/blob/master/index.js#L21
 // For a reference to BitTorrent client prefixes see the npm module 'bittorrent-peerid'
-const VERSION_STR = VERSION
+// and BEP 20 "Peer ID Conventions"
+const VERSION_STR = WEBTORRENT_VERSION
   .replace(/\d*./g, v => `0${v % 100}`.slice(-2))
   .slice(0, 4)
 const VERSION_PREFIX = `-WW${VERSION_STR}-`
@@ -30,8 +32,15 @@ class bitonClient extends WebTorrent {
   constructor (opts) {
 
     // Set default WebTorrent options
-    // Disable trackers
-    // opts.tracker = opts.tracker || false
+
+    /* Uncomment to avoid starting connections with peers while constructing client
+    // Disable trackers and dht
+    opts.tracker = opts.tracker || false
+    opts.dht = opts.dht || false
+    // Set max connections to 0
+    opts.maxConns = opts.maxConns || 0
+    */
+
     // Do not share torrent infohashes over MainlineDHT or PEX (BEP11)
     opts.private = (typeof opts.private === 'boolean') ? opts.private : true
     // Where to store torrents
@@ -40,29 +49,35 @@ class bitonClient extends WebTorrent {
     opts.webSeeds = opts.webSeeds || false
 
     super(opts)
+    debug('new biton-hybrid client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
+    this._infohashPrefix = opts.infohashPrefix || ''
+  }
 
+  getNewIdentity (keypair, seed = null) {
+    const client = this
     bitonCrypto.ready(function () {
-      let keypair = opts.keypair
       if (!keypair) {
-        let seed = opts.seed || null
-        debug('Generating node keypair with seed %s', seed)
-        keypair = bitonCrypto.create_keypair(seed)
+        debug('Generating node keypair with %s seed', seed || 'random')
+        keypair = bitonCrypto.createKeyPair(seed)
       }
 
-      let hexKey = Buffer.from(keypair.x25519.public, 'base64').toString('hex')
-      debug('node public key %s', hexKey)
+      let identity = Buffer.from(keypair.x25519.public).toString('base64')
 
       // BitTorrent client peerId = VERSION_PREFIX[0,10] + publicKey[0,8]
       let peerIdBuffer = Buffer.alloc(PEERIDLEN)
-      peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX, 'utf8'),
-        Buffer.from(keypair.x25519.public, 'base64')], peerIdBuffer.length)
+      peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX), Buffer.from(identity)], peerIdBuffer.length)
 
-      this.peerId = peerIdBuffer.toString('hex')
-      this._keypair = keypair
-      this._hexKey = hexKey
-      this._infohashPrefix = opts.infohashPrefix || ''
-      debug('new biton client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
-    }())
+      let peerId = peerIdBuffer.toString('hex')
+
+      debug('new identity %s and peerId %s (%s)', identity, peerId, peerIdBuffer)
+
+      client._identity = identity
+      client._keypair = keypair
+      client.peerId = peerId
+      client._peerIdBuffer = peerIdBuffer
+
+      client.emit('newIdentity')
+    })
   }
 
   /**
@@ -74,7 +89,7 @@ class bitonClient extends WebTorrent {
      * @return {torrent}
      */
   joinSwarm (swarmSeed, secret, opts, ontorrent) {
-    const combinedSeed = [this._infohashPrefix, swarmSeed, bitonSeed].filter(Boolean).join(' ')
+    const combinedSeed = [this._infohashPrefix, swarmSeed, bitonSEED].filter(Boolean).join(' ')
     const challengeSeed = [combinedSeed, secret].filter(Boolean).join(' ')
 
     const swarmInfohash = sha1.sync(combinedSeed)

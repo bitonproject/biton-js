@@ -17,7 +17,7 @@ module.exports = function () {
   const $log = document.querySelector('#clientLog')
   consoleLogHTML.connect($log)
 
-  let torrent
+  let client, torrent
 
   // Don't start the demo automatically.
   let $startBtn = document.querySelector('#startBtn')
@@ -39,23 +39,19 @@ module.exports = function () {
     graph.add({ id: 'You', name: 'You', me: true })
 
     bitonCrypto.ready(function () {
-      let seed, keypair
-
-      debug('Generating node keypair with seed %s', seed)
-      keypair = bitonCrypto.create_keypair(seed)
-
-      let hexKey = Buffer.from(keypair.x25519.public).toString('hex')
-      debug('node public key %s', hexKey)
-
       // Create client for the test network
-      const client = window.client = new bitonClient({ private: false, infohashPrefix: 'test', keypair: keypair })
+      client = window.client = new bitonClient({private: false, infohashPrefix: 'test'})
       client.on('warning', onWarning)
       client.on('error', onError)
 
-      // Create torrent
-      torrent = client.joinRootSwarm('', {}, onTorrent)
-      torrent.on('wire', onWire)
-    }())
+      client.on('newIdentity', onIdentity)
+      client.getNewIdentity()
+    })
+  }
+
+  function onIdentity () {
+    torrent = client.joinRootSwarm('', {}, onTorrent)
+    torrent.on('wire', onWire)
   }
 
   const $body = document.body

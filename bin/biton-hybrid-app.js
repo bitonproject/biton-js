@@ -2,8 +2,9 @@
 
 'use strict'
 
-const bitonClient = require('../')
 const debug = require('debug')('biton-hybrid-app')
+const bitonClient = require('../biton-hybrid')
+const bitonCrypto = require('../lib/crypto')
 const express = require('express')
 const http = require('http')
 const pug = require('pug')
@@ -80,4 +81,7 @@ process.on('uncaughtException', function (err) {
 
 // Start a biton client
 const client = new bitonClient({ private: false, infohashPrefix: INFOHASHPREFIX })
-client.joinRootSwarm()
+
+// Generate new identity and join root swarm
+client.once('newIdentity', client.joinRootSwarm)
+client.getNewIdentity()
