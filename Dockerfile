@@ -1,4 +1,5 @@
 FROM node:12.16.2
+# Specific node version with pre-built WebRTC binaries
 
 # If using node-alpine install wrtc dependencies
 # RUN apk --no-cache add python git ncurses openssl nss expat

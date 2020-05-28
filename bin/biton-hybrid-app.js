@@ -2,7 +2,7 @@
 
 'use strict'
 
-const debug = require('debug')('biton-hybrid-app')
+const debug = require('debug')('biton:hybrid-app')
 const bitonClient = require('../biton-hybrid')
 const bitonCrypto = require('../lib/crypto')
 const express = require('express')

@@ -116,3 +116,4 @@ dist
 
 .idea/
 simulations/
+bin/public/bundle.js

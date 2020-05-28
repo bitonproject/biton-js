@@ -1,4 +1,4 @@
-const debug = require('debug')('biton-browser')
+const debug = require('debug')('biton:browser')
 localStorage.debug = 'biton*'
 
 const bitonClient = require('../../')
