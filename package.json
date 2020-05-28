@@ -18,7 +18,6 @@
     "express": "^4.17.1",
     "noise-c.wasm": "^0.2.0",
     "pug": "^2.0.4",
-    "simple-sha1": "^3.0.1",
     "supercop.wasm": "^5.0.1",
     "webtorrent-hybrid": "^4.0.1"
   },
