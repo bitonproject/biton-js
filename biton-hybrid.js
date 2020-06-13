@@ -10,9 +10,6 @@ const bitonSEED = 'biton' + bitonCrypto.VERSION
 
 const WEBTORRENT_VERSION = WebTorrent.VERSION
 
-// Length of peerId in bytes
-const PEERIDLEN = 20
-
 // Generate nodeId version prefix as in WebTorrent
 // https://github.com/webtorrent/webtorrent/blob/master/index.js#L21
 // For a reference to BitTorrent client prefixes see the npm module 'bittorrent-peerid'
@@ -21,6 +18,9 @@ const VERSION_STR = WEBTORRENT_VERSION
   .replace(/\d*./g, v => `0${v % 100}`.slice(-2))
   .slice(0, 4)
 const VERSION_PREFIX = `-WW${VERSION_STR}-`
+
+// Length of peerId in bytes
+const PEERIDLEN = 20
 
 /**
  * biton Client
@@ -51,6 +51,13 @@ class bitonClient extends WebTorrent {
     this._infohashPrefix = opts.infohashPrefix || ''
   }
 
+  /**
+   * Generate a new identity for a given keypair or seed, or for a random seed.
+   * Emits 'newIdentity' after client has updated identifiers (peerId)
+   *
+   * @param keypair x25519 keypair
+   * @param seed the seed to use if keypair is null (default is random seed)
+   */
   getNewIdentity (keypair, seed = null) {
     const client = this
     bitonCrypto.ready(function () {
@@ -59,7 +66,7 @@ class bitonClient extends WebTorrent {
         keypair = bitonCrypto.createKeyPair(seed)
       }
 
-      let identity = Buffer.from(keypair.x25519.public).toString('base64')
+      let identity = bitonCrypto.base58.encode(Buffer.from(keypair.x25519.public))
 
       // BitTorrent client peerId = VERSION_PREFIX[0,10] + publicKey[0,8]
       let peerIdBuffer = Buffer.alloc(PEERIDLEN)
