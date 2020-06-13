@@ -82,7 +82,7 @@ This has to be executed once and will keep track of your local modifications
 ### Running biton-hybrid-app
 
 ```shell
-DEBUG=biton* INFOHASHPREFIX=test node bin/biton-hybrid-app.js
+DEBUG=biton* NETMAGIC=test node bin/biton-hybrid-app.js
 ```
 
 The Web interface is listening at <http://localhost:5000>.
@@ -92,7 +92,8 @@ The Web interface is listening at <http://localhost:5000>.
 
 | Name      | Purpose                                         |
 |-----------|-------------------------------------------------|
-| `INFOHASHPREFIX` | Join demo biton networks.                |
+| `SWARMSEED` | Join biton swarms (e.g. ```orbit#biton```).   |
+| `NETMAGIC` | Join demo biton networks.                      |
 | `HOST`    | The Web interface host address.                 |
 | `PORT`    | The Web interface listening port.               |
 | `DEBUG`   | Enables/disables specific debugging namespaces. |

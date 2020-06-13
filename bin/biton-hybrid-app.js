@@ -4,7 +4,6 @@
 
 const debug = require('debug')('biton:hybrid-app')
 const bitonClient = require('../biton-hybrid')
-const bitonCrypto = require('../lib/crypto')
 const express = require('express')
 const http = require('http')
 const pug = require('pug')
@@ -12,7 +11,7 @@ const path = require('path')
 
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || '127.0.0.1'
-const INFOHASHPREFIX = process.env.INFOHASHPREFIX || ''
+const MAGIC = process.env.MAGIC
 
 console.log('biton webtorrent-hybrid client')
 
@@ -57,10 +56,10 @@ server.on('error', function (e) {
 
 // Graceful shutdown. Close active connections. Delete logs and uncompleted chunks
 function exitHandler (options = {}) {
-  if (server.listening) {
+  if (server && server.listening) {
     server.close()
   }
-  if (!client.destroyed) {
+  if (client && !client.destroyed) {
     console.log('Destroying biton wires...')
     client.destroy()
   }
@@ -80,8 +79,8 @@ process.on('uncaughtException', function (err) {
 })
 
 // Start a biton client
-const client = new bitonClient({ private: false, infohashPrefix: INFOHASHPREFIX })
+const client = new bitonClient({ private: false, netMagic: MAGIC })
 
 // Generate new identity and join root swarm
-client.once('newIdentity', client.joinRootSwarm)
+client.once('newIdentity', client.joinGlobalSwarm)
 client.getNewIdentity()

@@ -22,6 +22,9 @@ const VERSION_PREFIX = `-WW${VERSION_STR}-`
 // Length of peerId in bytes
 const PEERIDLEN = 20
 
+// Magic bytes for connecting to biton main net
+const NETMAGICMAIN = Buffer.from([0, 0, 0, 0])
+
 /**
  * biton Client
  * @param {Object=} opts
@@ -48,7 +51,15 @@ class bitonClient extends WebTorrent {
 
     super(opts)
     debug('new biton-hybrid client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
-    this._infohashPrefix = opts.infohashPrefix || ''
+
+    // Get magic bytes for specifying a demo network to connect to (used to derive swarmId and chunkId prefixes)
+    if (opts.netMagic) {
+      // Demo networks
+      this._magicBuffer = Buffer.concat([Buffer.from(opts.netMagic), NETMAGICMAIN], 4)
+    } else {
+      // Main network
+      this._magicBuffer = NETMAGICMAIN
+    }
   }
 
   /**
@@ -88,16 +99,17 @@ class bitonClient extends WebTorrent {
   /**
      * Join a biton swarm
      * @param  {string} swarmSeed
-     * @param  {string} secret
+     * @param  {string} challengeSecret
+     * @param  {number} swarmPath
      * @param  {Object=} opts
      * @param  {function=} ontorrent called when torrent is seeding
      * @return {torrent}
      */
-  joinSwarm (swarmSeed, secret, opts, ontorrent) {
-    const combinedSeed = [this._infohashPrefix, swarmSeed, bitonSEED].filter(Boolean).join(' ')
-    const challengeSeed = [combinedSeed, secret].filter(Boolean).join(' ')
+  joinSwarm (swarmSeed, challengeSecret, swarmPath, opts, ontorrent) {
+    const combinedSeed = [bitonSEED, this._magicBuffer, swarmSeed, swarmPath].join('&')
+    const challengeSeed = [combinedSeed, challengeSecret].join('&')
 
-    const swarmInfohashBytes = bitonCrypto.blake2b_256(Uint8Array.from(combinedSeed))
+    const swarmInfohashBytes = bitonCrypto.blake2b_256(combinedSeed)
     const swarmInfohash = Buffer.from(swarmInfohashBytes.subarray(0, 20)).toString('hex')
     debug('joining biton swarm with swarm seed "%s" and info-hash "%s"', combinedSeed, swarmInfohash)
 
@@ -114,8 +126,13 @@ class bitonClient extends WebTorrent {
     return torrent
   }
 
-  joinRootSwarm (secret, opts, ontorrent) {
-    return this.joinSwarm('', secret, opts, ontorrent)
+  joinRootSwarm (swarmSeed, secret, opts, ontorrent) {
+    // Connect to the root (top level) of that swarm
+    return this.joinSwarm(swarmSeed, secret, 0, opts, ontorrent)
+  }
+
+  joinGlobalSwarm (opts, ontorrent) {
+    return this.joinRootSwarm('', '', opts, ontorrent)
   }
 
   /**

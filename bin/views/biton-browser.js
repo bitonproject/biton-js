@@ -38,7 +38,7 @@ module.exports = function () {
 
     bitonCrypto.ready(function () {
       // Create client for the test network
-      client = window.client = new bitonClient({private: false, infohashPrefix: 'test'})
+      client = window.client = new bitonClient({private: false, netMagic: 'test'})
       client.on('warning', onWarning)
       client.on('error', onError)
 
@@ -48,7 +48,7 @@ module.exports = function () {
   }
 
   function onIdentity () {
-    torrent = client.joinRootSwarm('', {}, onTorrent)
+    torrent = client.joinGlobalSwarm({}, onTorrent)
     torrent.on('wire', onWire)
   }
 
