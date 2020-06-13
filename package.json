@@ -4,7 +4,7 @@
   "description": "A peer-to-peer network for evading information controls",
   "main": "biton-hybrid.js",
   "scripts": {
-    "start": "node biton-hybrid.js",
+    "start": "node bin/biton-hybrid-app.js",
     "test": "npx standard",
     "build": "browserify bin/views/*.js -o bin/public/bundle.js",
     "watch": "watchify bin/views/*.js -o bin/public/bundle.js --debug --verbose"

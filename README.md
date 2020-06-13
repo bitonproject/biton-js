@@ -82,10 +82,12 @@ This has to be executed once and will keep track of your local modifications
 ### Running biton-hybrid-app
 
 ```shell
-DEBUG=biton* NETMAGIC=test node bin/biton-hybrid-app.js
+DEBUG=biton* NETMAGIC=test npm start
 ```
 
-The Web interface is listening at <http://localhost:5000>.
+The Web interface is listening at <http://localhost:5000>. `biton-hybrid`
+clients are extending `webtorrent-hybrid` and can connect to both TCP/uTP and
+WebRTC nodes.
 
 
 ### Environment variables
