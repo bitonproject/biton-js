@@ -115,13 +115,13 @@ class bitonClient extends WebTorrent {
 
     const torrent = this.add(swarmInfohash, opts, ontorrent)
 
-    const ownPeerId = this.peerId
-    const noiseKeypair = this._keypair
+    const client = this
     // Only use the biton extension for torrents that correspond to biton swarms
     torrent.on('wire', function (wire, addr) {
       debug('swarm "%s": connected to peer with address %s', combinedSeed, addr)
       debug('supported extensions: ' + JSON.stringify(wire.peerExtensions))
-      wire.use(bitonExtension(challengeSeed, ownPeerId, noiseKeypair))
+      const initiator = this._peers[wire.peerId].conn.initiator
+      wire.use(bitonExtension(challengeSeed, client.peerId, client._identity, client._keypair, initiator))
     })
 
     return torrent
