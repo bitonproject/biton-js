@@ -34,7 +34,8 @@ class bitonClient extends WebTorrent {
 
     // Set default WebTorrent options
 
-    /* Uncomment to avoid starting connections with peers while constructing client
+    /*
+    // Uncomment to disable connections with trackers, the dht, or other peers
     // Disable trackers and dht
     opts.tracker = opts.tracker || false
     opts.dht = opts.dht || false

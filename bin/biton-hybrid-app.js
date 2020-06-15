@@ -11,7 +11,7 @@ const path = require('path')
 
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || '127.0.0.1'
-const MAGIC = process.env.MAGIC
+const NETMAGIC = process.env.MAGIC
 
 console.log('biton webtorrent-hybrid client')
 
@@ -79,7 +79,7 @@ process.on('uncaughtException', function (err) {
 })
 
 // Start a biton client
-const client = new bitonClient({ private: false, netMagic: MAGIC })
+const client = new bitonClient({ private: false, netMagic: NETMAGIC })
 
 // Generate new identity and join root swarm
 client.once('newIdentity', client.joinGlobalSwarm)
