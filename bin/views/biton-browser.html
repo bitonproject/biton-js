@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>biton</title>
+      <style>#output video {
+         width: 100%;
+         }
+         #progressBar {
+         height: 5px;
+         width: 0%;
+         background-color: #35b44f;
+         transition: width .4s ease-in-out;
+         }
+         body.is-seed .show-seed {
+         display: inline;
+         }
+         body.is-seed .show-leech {
+         display: none;
+         }
+         .show-seed {
+         display: none;
+         }
+         #status code {
+         font-size: 90%;
+         font-weight: 700;
+         margin-left: 3px;
+         margin-right: 3px;
+         border-bottom: 1px dashed rgba(255,255,255,0.3);
+         }
+         .is-seed #hero {
+         background-color: #154820;
+         transition: .5s .5s background-color ease-in-out;
+         }
+         #status {
+         font-size: 17px;
+         padding: 5px;
+         }
+         a:link, a:visited {
+         color: #30a247;
+         text-decoration: none;
+         }
+      </style>
+   </head>
+   <main>
+      <div id="hero">
+         <div id="progressBar"></div>
+         <h1>biton browser-client (connecting to 'test' network)</h1>
+         <h2>DO NOT USE - This demo does not provide any security or privacy properties</h2>
+         <div id="startBtn"><a href="#"><button type="button">Start biton</button></a></div>
+         <div class="clearfix" id="status">
+            <div id="statusLeft"><span class="show-leech">Connected to </span><code id="numPeers">0 peers</code>. </div>
+         </div>
+         <div id="svgWrap">
+            <div class="torrent-graph"></div>
+         </div>
+         <ul id="clientLog"></ul>
+      </div>
+   </main>
+   <script src="/bundle.js"></script>
+</html>

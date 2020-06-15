@@ -6,7 +6,6 @@ const debug = require('debug')('biton:hybrid-app')
 const bitonClient = require('../biton-hybrid')
 const express = require('express')
 const http = require('http')
-const pug = require('pug')
 const path = require('path')
 
 const PORT = process.env.PORT || 5000
@@ -22,18 +21,13 @@ const server = http.createServer(app)
 // Serve static files in the public directory
 app.use(express.static(path.join(__dirname, '/public')))
 
-// Setup pug for rendering views
-app.set('views', path.join(__dirname, '/views/'))
-app.set('view engine', 'pug')
-app.engine('pug', pug.renderFile)
-
 // Attach HTTP endpoints
 app.get('/', function (req, res) {
-  res.render('home')
+  res.sendFile(path.join(__dirname, 'views/home.html'))
 })
 
 app.get('/biton-browser', function (req, res) {
-  res.render('biton-browser')
+  res.sendFile(path.join(__dirname, 'views/biton-browser.html'))
 })
 
 // Handle 404 for unrecognized URLs
