@@ -10,7 +10,7 @@ const path = require('path')
 
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || '127.0.0.1'
-const NETMAGIC = process.env.MAGIC
+const NETMAGIC = process.env.NETMAGIC
 
 console.log('biton webtorrent-hybrid client')
 
