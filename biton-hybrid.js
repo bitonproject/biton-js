@@ -71,29 +71,29 @@ class bitonClient extends WebTorrent {
    * @param seed the seed to use if keypair is null (default is random seed)
    */
   getNewIdentity (keypair, seed = null) {
-    const client = this
+    const self = this
     bitonCrypto.ready(function () {
       if (!keypair) {
         debug('Generating node keypair with %s seed', seed || 'random')
         keypair = bitonCrypto.createKeyPair(seed)
       }
 
-      let identity = bitonCrypto.base58.encode(Buffer.from(keypair.x25519.public))
+      const identity = bitonCrypto.base58.encode(Buffer.from(keypair.x25519.public))
 
       // BitTorrent client peerId = VERSION_PREFIX[0,10] + publicKey[0,8]
       let peerIdBuffer = Buffer.alloc(PEERIDLEN)
       peerIdBuffer = Buffer.concat([Buffer.from(VERSION_PREFIX), Buffer.from(identity)], peerIdBuffer.length)
 
-      let peerId = peerIdBuffer.toString('hex')
+      const peerId = peerIdBuffer.toString('hex')
 
       debug('new identity %s and peerId %s (%s)', identity, peerId, peerIdBuffer)
 
-      client._identity = identity
-      client._keypair = keypair
-      client.peerId = peerId
-      client._peerIdBuffer = peerIdBuffer
+      self._identity = identity
+      self._keypair = keypair
+      self.peerId = peerId
+      self._peerIdBuffer = peerIdBuffer
 
-      client.emit('newIdentity')
+      self.emit('newIdentity')
     })
   }
 
@@ -116,13 +116,14 @@ class bitonClient extends WebTorrent {
 
     const torrent = this.add(swarmInfohash, opts, ontorrent)
 
-    const client = this
+    const self = this
     // Only use the biton extension for torrents that correspond to biton swarms
     torrent.on('wire', function (wire, addr) {
       debug('swarm "%s": connected to peer with address %s', combinedSeed, addr)
       debug('supported extensions: ' + JSON.stringify(wire.peerExtensions))
       const initiator = this._peers[wire.peerId].conn.initiator
-      wire.use(bitonExtension(challengeSeed, client.peerId, client._identity, client._keypair, initiator))
+      wire.use(bitonExtension(challengeSeed, self.peerId, self._identity, self._keypair,
+        initiator))
     })
 
     return torrent
