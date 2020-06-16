@@ -9,7 +9,7 @@ const http = require('http')
 const path = require('path')
 
 const PORT = process.env.PORT || 5000
-const HOST = process.env.HOST || '127.0.0.1'
+const HOST = process.env.HOST || process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'
 const NETMAGIC = process.env.NETMAGIC
 
 console.log('biton webtorrent-hybrid client')
@@ -23,6 +23,10 @@ app.use(express.static(path.join(__dirname, '/public')))
 
 // Attach HTTP endpoints
 app.get('/', function (req, res) {
+  res.redirect('/entangled')
+})
+
+app.get('/entangled', function (req, res) {
   res.sendFile(path.join(__dirname, 'views/entangled.html'))
 })
 
@@ -38,10 +42,10 @@ server.listen(PORT, HOST, () => {
 server.on('error', function (e) {
   if (e.code === 'EADDRINUSE') {
     console.log('Another application (a biton client or container?) is already listening on port %s', PORT)
-    exitHandler()
   } else {
     console.log('Unexpected error at the HTTP server: ' + e.code)
   }
+  exitHandler()
 })
 
 // Graceful shutdown. Close active connections. Delete logs and uncompleted chunks

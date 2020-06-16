@@ -19,8 +19,8 @@ such as protocol fingerprinting, traffic analysis, and bridge enumeration.
 
 ### Project structure
 
-This monorepo hosts the implementation of biton as an extension to
-[WebTorrent](https://webtorrent.io), divided into the following modules:
+This repository hosts the implementation of `biton0_BitTorrent` as an extension
+to [WebTorrent](https://webtorrent.io), divided into the following modules:
 
   *  [`lib/biton-ext.js`](lib/biton-ext.js) the biton extension
   *  [`biton-hybrid.js`](biton-hybrid.js) biton hybrid client integrating the
@@ -55,7 +55,6 @@ npm install
 ### Compile browser client resources
 
 ```shell
-
 npm run-script build
 ```
 
@@ -93,11 +92,12 @@ WebRTC nodes.
 
 | Name      | Purpose                                         |
 |-----------|-------------------------------------------------|
-| `SWARMSEED` | Join biton swarms (e.g. ```orbit#biton```).   |
+| `SWARMSEED` | Join biton swarms (e.g. `orbit#biton`).   |
 | `NETMAGIC` | Join demo biton networks.                      |
 | `HOST`    | The Web interface host address.                 |
 | `PORT`    | The Web interface listening port.               |
 | `DEBUG`   | Enables/disables specific debugging namespaces. |
+| `NODE_ENV` | If `production` bind to `HOST` or `0.0.0.0`    |
 
 
 ### Running biton-browser
