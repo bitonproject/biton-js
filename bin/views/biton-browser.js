@@ -9,6 +9,35 @@ const P2PGraph = require('p2p-graph')
 const prettierBytes = require('prettier-bytes')
 const throttle = require('throttleit')
 
+
+var STYLE = {
+  links: {
+    width: 0.7, // default link thickness
+    maxWidth: 5.0, // max thickness
+    maxBytes: 2097152 // link max thickness at 2MB
+  }
+}
+
+var COLORS = {
+  links: {
+    color: '#C8C8C8'
+  },
+  text: {
+    subtitle: '#C8C8C8'
+  },
+  nodes: {
+    method: function (d, i) {
+      return d.me
+        ? '#F1E116' // yellow
+        : d.seeder
+          ? '#10C284' // green
+          : '#1D87CB' // blue
+    },
+    hover: '#A9A9A9',
+    dep: '#252929'
+  }
+}
+
 module.exports = function () {
   let graph
   let hero = document.querySelector('#hero')
@@ -33,8 +62,89 @@ module.exports = function () {
     hero.className = 'loading'
     hero = null
 
+    P2PGraph.prototype._update = function () {
+      var self = this
+
+      self._link = self._link.data(self._model.links)
+      self._node = self._node.data(self._model.nodes, function (d) {
+        return d.id
+      })
+
+      self._link.enter()
+        .insert('line', '.node')
+        .attr('class', 'link')
+        .style('stroke', COLORS.links.color)
+        .style('opacity', 0.5)
+
+      self._link
+        .exit()
+        .remove()
+
+      self._link.style('stroke-width', function (d) {
+        // setting thickness
+        return d.rate
+          ? d.rate < STYLE.links.width ? STYLE.links.width : d.rate
+          : STYLE.links.width
+      })
+
+      var g = self._node.enter()
+        .append('g')
+        .attr('class', 'node')
+
+      g.append('circle')
+        .on('click', function (d) {
+          if (!d) return
+          self._model.focused = d
+          self.emit('select', d.id)
+        })
+
+      self._node
+        .select('circle')
+        .attr('r', function (d) {
+          return self._scale() * (d.me ? 15 : 10)
+        })
+        .style('fill', COLORS.nodes.method)
+
+      g.append('text')
+        .attr('class', 'text')
+        .text(function (d) {
+          return d.name
+        })
+
+      self._node
+        .select('text')
+        .attr('font-size', function (d) {
+          return d.me ? 16 * self._scale() : 12 * self._scale()
+        })
+        .attr('dx', 0)
+        .attr('dy', function (d) {
+          return d.me ? -22 * self._scale() : -15 * self._scale()
+        })
+
+      self._node
+        .exit()
+        .remove()
+
+      self._force
+        .linkDistance(100 * self._scale())
+        .charge(-200 * self._scale())
+        .start()
+    }
+
+    P2PGraph.prototype.sendNoise = function(id) {
+      const index = graph._getNodeIndex(id)
+      if (index === -1) throw new Error('node does not exist')
+      this._model.nodes[index].seeder = !this._model.nodes[index].seeder
+      this._update()
+    }
+
     graph = window.graph = new P2PGraph('.torrent-graph')
     graph.add({ id: 'Me', name: 'Me', me: true })
+
+    graph.on('select', function (id) {
+      if (!id) return // deselected a node
+      graph.sendNoise(id)
+    })
 
     bitonCrypto.ready(function () {
       // Create client for the test network
@@ -74,8 +184,8 @@ module.exports = function () {
 
   function onWire (wire) {
     const id = wire.peerId.toString()
-    graph.add({ id: id, name: wire.remoteAddress || 'Unknown' })
-    graph.connect('You', id)
+    graph.add({ id: id, name: wire.peerId || 'Unknown' })
+    graph.connect('Me', id)
     onPeerUpdate()
     self = this
     wire.on('wireNoiseReady', function() {
@@ -83,7 +193,7 @@ module.exports = function () {
       graph.seed(id, true)
     })
     wire.once('close', function () {
-      graph.disconnect('You', id)
+      graph.disconnect('Me', id)
       graph.remove(id)
       onPeerUpdate()
     })
