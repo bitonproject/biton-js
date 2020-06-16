@@ -34,7 +34,7 @@ module.exports = function () {
     hero = null
 
     graph = window.graph = new P2PGraph('.torrent-graph')
-    graph.add({ id: 'You', name: 'You', me: true })
+    graph.add({ id: 'Me', name: 'Me', me: true })
 
     bitonCrypto.ready(function () {
       // Create client for the test network
@@ -77,6 +77,11 @@ module.exports = function () {
     graph.add({ id: id, name: wire.remoteAddress || 'Unknown' })
     graph.connect('You', id)
     onPeerUpdate()
+    self = this
+    wire.on('wireNoiseReady', function() {
+      debug('peer %s completed noise handshake', id)
+      graph.seed(id, true)
+    })
     wire.once('close', function () {
       graph.disconnect('You', id)
       graph.remove(id)
