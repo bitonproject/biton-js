@@ -9,8 +9,7 @@ const P2PGraph = require('p2p-graph')
 const prettierBytes = require('prettier-bytes')
 const throttle = require('throttleit')
 
-
-var STYLE = {
+const STYLE = {
   links: {
     width: 0.7, // default link thickness
     maxWidth: 5.0, // max thickness
@@ -18,7 +17,7 @@ var STYLE = {
   }
 }
 
-var COLORS = {
+const COLORS = {
   links: {
     color: '#C8C8C8'
   },
@@ -144,7 +143,10 @@ module.exports = function () {
     graph.on('select', function (id) {
       if (!id) return // deselected a node
       graph.swapNoise(id)
-      torrent._peers[id].wire.biton.emit('sendPing')
+      if (id !== 'Me') {
+        // Send ping to the selected peer
+        torrent._peers[id].wire.biton.emit('sendPing')
+      }
     })
 
   }

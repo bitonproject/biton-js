@@ -23,11 +23,7 @@ app.use(express.static(path.join(__dirname, '/public')))
 
 // Attach HTTP endpoints
 app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'views/home.html'))
-})
-
-app.get('/biton-browser', function (req, res) {
-  res.sendFile(path.join(__dirname, 'views/biton-browser.html'))
+  res.sendFile(path.join(__dirname, 'views/entangled.html'))
 })
 
 // Handle 404 for unrecognized URLs

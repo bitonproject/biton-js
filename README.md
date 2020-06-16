@@ -27,8 +27,7 @@ This monorepo hosts the implementation of biton as an extension to
   biton extension
   *  [`bin/biton-hybrid-app.js`](bin/biton-hybrid-app.js) command
   line and Web interface for the biton hybrid client
-  *  [`bin/views/biton-browser.js`](bin/views/biton-browser.js) biton browser
-  client
+  *  [`bin/views/entangled.js`](bin/views/entangled.js) entangled Web demo
 
 
 ### Disclaimer
