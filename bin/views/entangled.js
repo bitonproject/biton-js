@@ -61,6 +61,10 @@ module.exports = function () {
     hero.className = 'loading'
     hero = null
 
+    shortName = function (peerId) {
+      return Buffer.from(peerId, 'hex').subarray(9, 20).toString('utf-8')
+    }
+
     P2PGraph.prototype._update = function () {
       var self = this
 
@@ -125,7 +129,7 @@ module.exports = function () {
         .remove()
 
       self._force
-        .linkDistance(100 * self._scale())
+        .linkDistance(150 * self._scale())
         .charge(-200 * self._scale())
         .start()
     }
@@ -138,7 +142,7 @@ module.exports = function () {
     }
 
     graph = window.graph = new P2PGraph('.torrent-graph')
-    graph.add({ id: 'Me', name: 'Me ' + Buffer.from(client.peerId, 'hex').toString('utf-8'), me: true })
+    graph.add({ id: 'Me', name: shortName(client.peerId), me: true })
 
     graph.on('select', function (id) {
       if (!id) return // deselected a node
@@ -192,7 +196,7 @@ module.exports = function () {
 
   function onWire (wire) {
     const id = wire.peerId.toString()
-    graph.add({ id: id, name: Buffer.from(wire.peerId, 'hex').toString() || 'Unknown' })
+    graph.add({ id: id, name: shortName(id) || 'Unknown' })
     graph.connect('Me', id)
     onPeerUpdate()
     self = this

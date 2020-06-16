@@ -9,9 +9,22 @@
    <main>
       <div id="hero">
          <div id="progressBar"></div>
-         <h1>biton entaglement demo</h1>
-         <h2></h2>
-         <h3>This website does not provide any security or privacy properties.</h3>
+
+         <h1>biton entangled demo</h1>
+         <ul>
+            <li>Start a <a href="https://github.com/bitonproject/biton" target="_blank">biton client</a>
+               within this browser tab</li>
+            <li>Generate a public keypair and respective
+               <a href="https://bitonproject.org/guide/tech/specification.html" target="_blank">biton identity</a></li>
+            <li>Join the global test network, discovering other users using BitTorrent Mainline DHT</li>
+            <li>Add new peers as circles in the graph and perform a Noise_XX handshake</li>
+            <li>Click on their circle to change your entangled state (will update the color of your circle on their browser!)</li>
+            <li>Hint* See your <a href="https://balsamiq.com/support/faqs/browserconsole/",
+                                  target="_blank">browser console</a> for debug messages</li>
+         </ul>
+
+         <h3>What information will others learn about me?</h3>
+         <p>Running this demo <b>will expose your IP address</b> to other biton entangled users and to the BitTorrent DHT network.</p>
          <div id="startBtn"><a href="#"><button type="button">Start biton</button></a></div>
          <div class="clearfix" id="status">
             <div id="statusLeft"><span class="show-leech">Connected to </span><code id="numPeers">0 peers</code>. </div>

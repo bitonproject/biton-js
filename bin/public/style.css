@@ -1,12 +1,13 @@
-#output video {
-    width: 100%;
-}
 #progressBar {
     height: 5px;
     width: 0%;
     background-color: #35b44f;
     transition: width .4s ease-in-out;
 }
+body {
+    font-family: system-ui, arial;
+}
+
 body.is-seed .show-seed {
     display: inline;
 }
