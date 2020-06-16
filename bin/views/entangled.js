@@ -1,13 +1,11 @@
-const debug = require('debug')('biton:browser')
+const debug = require('debug')('biton:entangled')
 localStorage.debug = 'biton*'
 
 const bitonClient = require('../../')
 const bitonCrypto = require('../../lib/crypto')
 
-const moment = require('moment')
 const P2PGraph = require('p2p-graph')
-const prettierBytes = require('prettier-bytes')
-const throttle = require('throttleit')
+
 
 const STYLE = {
   links: {
@@ -39,14 +37,14 @@ const COLORS = {
 
 module.exports = function () {
   let graph
-  let hero = document.querySelector('#hero')
-
-  const $log = document.querySelector('#clientLog')
-
   let client, torrent
 
-  // Don't start the demo automatically.
+  // Do not start the demo automatically.
   let $startBtn = document.querySelector('#startBtn')
+  const $body = document.body
+  let $numPeers = document.querySelector('#numPeers')
+  let hero = document.querySelector('#hero')
+
 
   $startBtn.addEventListener('click', function onClick () {
     $startBtn.removeEventListener('click', onClick, false)
@@ -61,12 +59,8 @@ module.exports = function () {
     hero.className = 'loading'
     hero = null
 
-    shortName = function (peerId) {
-      return Buffer.from(peerId, 'hex').subarray(9, 20).toString('utf-8')
-    }
-
     P2PGraph.prototype._update = function () {
-      var self = this
+      const self = this
 
       self._link = self._link.data(self._model.links)
       self._node = self._node.data(self._model.nodes, function (d) {
@@ -83,14 +77,7 @@ module.exports = function () {
         .exit()
         .remove()
 
-      self._link.style('stroke-width', function (d) {
-        // setting thickness
-        return d.rate
-          ? d.rate < STYLE.links.width ? STYLE.links.width : d.rate
-          : STYLE.links.width
-      })
-
-      var g = self._node.enter()
+      const g = self._node.enter()
         .append('g')
         .attr('class', 'node')
 
@@ -130,7 +117,6 @@ module.exports = function () {
 
       self._force
         .linkDistance(150 * self._scale())
-        .charge(-200 * self._scale())
         .start()
     }
 
@@ -145,10 +131,10 @@ module.exports = function () {
     graph.add({ id: 'Me', name: shortName(client.peerId), me: true })
 
     graph.on('select', function (id) {
-      if (!id) return // deselected a node
-      graph.swapNoise(id)
       if (id !== 'Me') {
+        graph.swapNoise(id)
         // Send ping to the selected peer
+        debug('sending ping message to peer %s', shortName(id))
         torrent._peers[id].wire.biton.emit('sendPing')
       }
     })
@@ -174,24 +160,13 @@ module.exports = function () {
     torrent.on('wire', onWire)
   }
 
-  const $body = document.body
-  const $progressBar = document.querySelector('#progressBar')
-  const $numPeers = document.querySelector('#numPeers')
-  const $downloaded = document.querySelector('#downloaded')
-  const $total = document.querySelector('#total')
-  const $remaining = document.querySelector('#remaining')
+
 
   function onTorrent () {
-    const opts = {
-      autoplay: true,
-      muted: true
-    }
+  }
 
-    torrent.on('done', onDone)
-    torrent.on('download', throttle(onProgress, 250))
-    torrent.on('upload', throttle(onProgress, 250))
-    setInterval(onProgress, 5000)
-    onProgress()
+  function shortName (peerId) {
+    return Buffer.from(peerId, 'hex').subarray(9, 20).toString('utf-8')
   }
 
   function onWire (wire) {
@@ -201,10 +176,11 @@ module.exports = function () {
     onPeerUpdate()
     self = this
     wire.once('wireNoiseReady', function() {
-      debug('peer %s completed noise handshake', id)
+      debug('peer %s completed noise handshake', shortName(id))
       graph.seed(id, true)
     })
     wire.on('receivedPing', function () {
+      debug('peer %s sent ping', shortName(id))
       graph.swapNoise(id)
     })
     wire.once('close', function () {
@@ -216,29 +192,6 @@ module.exports = function () {
 
   function onPeerUpdate () {
     $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
-  }
-
-  function onProgress () {
-    const percent = Math.round(torrent.progress * 100 * 100) / 100
-    $progressBar.style.width = percent + '%'
-    $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
-
-    $downloaded.innerHTML = prettierBytes(torrent.downloaded)
-    $total.innerHTML = prettierBytes(torrent.length)
-
-    let remaining
-    if (torrent.done) {
-      remaining = 'Done.'
-    } else {
-      remaining = moment.duration(torrent.timeRemaining / 1000, 'seconds').humanize()
-      remaining = remaining[0].toUpperCase() + remaining.substring(1) + ' remaining.'
-    }
-    $remaining.innerHTML = remaining
-  }
-
-  function onDone () {
-    $body.className += ' is-seed'
-    onProgress()
   }
 
   function onError (err) {
