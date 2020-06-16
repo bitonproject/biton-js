@@ -122,10 +122,20 @@ class bitonClient extends WebTorrent {
       debug('swarm "%s": connected to peer with address %s', combinedSeed, addr)
       debug('supported extensions: ' + JSON.stringify(wire.peerExtensions))
       const initiator = this._peers[wire.peerId].conn.initiator
+
       wire.use(bitonExtension(challengeSeed, peerId, _identity, _keypair,
         initiator))
+
       wire._ext.biton.once('noiseReady', () => {
         wire.emit('wireNoiseReady')
+      })
+
+      // Transfer events between biton-ext / biton-browser
+      wire.on('sendPing', () => {
+        wire._ext.biton._sendPing()
+      })
+      wire._ext.biton.on('receivedPing', () => {
+        wire.emit('receivedPing')
       })
     })
 

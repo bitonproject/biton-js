@@ -57,7 +57,7 @@ module.exports = function () {
     init()
   })
 
-  function init () {
+  function initGraph() {
     // Display video and related information.
     hero.className = 'loading'
     hero = null
@@ -131,7 +131,7 @@ module.exports = function () {
         .start()
     }
 
-    P2PGraph.prototype.sendNoise = function(id) {
+    P2PGraph.prototype.swapNoise = function(id) {
       const index = graph._getNodeIndex(id)
       if (index === -1) throw new Error('node does not exist')
       this._model.nodes[index].seeder = !this._model.nodes[index].seeder
@@ -139,21 +139,27 @@ module.exports = function () {
     }
 
     graph = window.graph = new P2PGraph('.torrent-graph')
-    graph.add({ id: 'Me', name: 'Me', me: true })
+    graph.add({ id: 'Me', name: 'Me ' + Buffer.from(client.peerId, 'hex').toString('utf-8'), me: true })
 
     graph.on('select', function (id) {
       if (!id) return // deselected a node
-      graph.sendNoise(id)
+      graph.swapNoise(id)
+      torrent._peers[id].wire.biton.emit('sendPing')
     })
 
+  }
+
+  function init () {
     bitonCrypto.ready(function () {
       // Create client for the test network
-      client = window.client = new bitonClient({private: false, netMagic: 'test'})
+      client = window.client = new bitonClient({ private: false, netMagic: 'test' })
       client.on('warning', onWarning)
       client.on('error', onError)
 
       client.on('newIdentity', onIdentity)
       client.getNewIdentity()
+
+      initGraph()
     })
   }
 
@@ -184,13 +190,16 @@ module.exports = function () {
 
   function onWire (wire) {
     const id = wire.peerId.toString()
-    graph.add({ id: id, name: wire.peerId || 'Unknown' })
+    graph.add({ id: id, name: Buffer.from(wire.peerId, 'hex').toString() || 'Unknown' })
     graph.connect('Me', id)
     onPeerUpdate()
     self = this
-    wire.on('wireNoiseReady', function() {
+    wire.once('wireNoiseReady', function() {
       debug('peer %s completed noise handshake', id)
       graph.seed(id, true)
+    })
+    wire.on('receivedPing', function () {
+      graph.swapNoise(id)
     })
     wire.once('close', function () {
       graph.disconnect('Me', id)
