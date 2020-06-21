@@ -16,17 +16,21 @@
             <li>Start a <a href="https://github.com/bitonproject/biton" target="_blank">biton client</a>
                within this browser tab</li>
             <li>Generate a public keypair and
-               <a href="https://bitonproject.org/guide/tech/specification.html" target="_blank">biton identity</a></li>
+               <a href="https://bitonproject.org/guide/tech/specification.html#biton-client-address"
+                  target="_blank">biton identity</a></li>
             <li>Join the global test network, discovering other users through BitTorrent Mainline DHT</li>
-            <li>For each connection add a circle in the graph and perform a Noise_XX handshake</li>
+            <li>Your node is represented by the yellow circle in the center of the graph. Connections with other users
+                later on appear as smaller circles</li>
             <li>Click on a circle to swap the entangled color!
                (This will also swap the color of your circle at the browser of the other user)</li>
-            <li>Hint* See your <a href="https://balsamiq.com/support/faqs/browserconsole/",
-                                  target="_blank">browser console</a> for debug messages</li>
+            <li>Hint* Open this website on a new browser tab to run multiple clients. Also, see your
+               <a href="https://balsamiq.com/support/faqs/browserconsole/" target="_blank">browser console</a> for debug
+               messages</li>
          </ul>
 
          <h3>What information will others learn about me?</h3>
-         <p>Running this demo <b>will expose your IP address</b> to other biton entangled users and to the BitTorrent DHT network.</p>
+         <p>Running this demo <b>will expose your IP address</b> to other biton entangled users and to the BitTorrent
+            DHT network.</p>
          <div id="startBtn"><a href="#"><button type="button">Start biton</button></a></div>
          <div class="clearfix" id="status">
             <div id="statusLeft"><span class="show-leech">Connected to </span><code id="numPeers">0 peers</code>. </div>

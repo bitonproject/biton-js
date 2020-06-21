@@ -19,8 +19,8 @@ such as protocol fingerprinting, traffic analysis, and bridge enumeration.
 
 ### Project structure
 
-This repository hosts the implementation of `biton0_BitTorrent` as an extension
-to [WebTorrent](https://webtorrent.io), divided into the following modules:
+This repository hosts the implementation of [`biton0_BitTorrent`](https://bitonproject.org/guide/tech/specification.html)
+as an extension to [WebTorrent hybrid](https://webtorrent.io).
 
   *  [`lib/biton-ext.js`](lib/biton-ext.js) the biton extension
   *  [`biton-hybrid.js`](biton-hybrid.js) biton hybrid client integrating the
@@ -90,27 +90,26 @@ WebRTC nodes.
 
 ### Environment variables
 
-| Name      | Purpose                                         |
-|-----------|-------------------------------------------------|
-| `SWARMSEED` | Join biton swarms (e.g. `orbit#biton`).   |
-| `NETMAGIC` | Join demo biton networks.                      |
-| `HOST`    | The Web interface host address.                 |
-| `PORT`    | The Web interface listening port.               |
-| `DEBUG`   | Enables/disables specific debugging namespaces. |
-| `NODE_ENV` | If `production` bind to `HOST` or `0.0.0.0`    |
+| Name        | Purpose                                                            |
+|-------------|--------------------------------------------------------------------|
+| `SWARMSEED` | Join a biton swarm (e.g. `orbit#biton`)                            |
+| `NETMAGIC`  | Join demo biton networks (e.g. `test`)                             |
+| `DEBUG`     | Enables/disables specific debugging namespaces (e.g. ```biton*```) |
+| `PORT`      | The Web interface listening port (default `5000`)                  |
+| `HOST`      | The Web interface host address (default 127.0.0.1)                 |
+| `NODE_ENV=production` | Serve requests from others (bind host to `0.0.0.0`)      |
 
 
-### Running biton-browser
+### Running biton on the browser
 
-You can spawn a biton browser client in the network with the infoHash prefix
-`test` by visiting <http://localhost:5000/biton-browser>. Each tab is an
-independent biton client, so you can open multiple tabs for simulating a swarm
-of peers.
+You can run biton client in the `test` demo network
+visiting <http://localhost:5000>. Each tab is an independent biton client, so
+you can open multiple tabs for simulating a swarm of peers.
 
 If you are visiting a local `biton-hybrid-app` with Firefox, make sure that you
 are not blocking all third-party cookies (custom enhanced tracking protection),
-as this prevents connections to BitTorrent trackers. You can whitelist localhost
-via the shield in the URL address bar
+as this prevents connections to BitTorrent trackers. You can temporarily
+whitelist localhost via the shield in the URL address bar
 ([instructions here](https://support.mozilla.org/kb/enhanced-tracking-protection-firefox-preview#w_turn-protections-onoff-for-individual-sites)).
 
 
