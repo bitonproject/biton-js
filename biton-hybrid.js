@@ -22,7 +22,7 @@ const VERSION_PREFIX = `-WW${VERSION_STR}-`
 // Length of peerId in bytes
 const PEERIDLEN = 20
 
-// Magic bytes for connecting to biton main net
+// Main network magic bytes
 const NETMAGICMAIN = Buffer.from([0, 0, 0, 0])
 
 /**
@@ -31,36 +31,45 @@ const NETMAGICMAIN = Buffer.from([0, 0, 0, 0])
  */
 class bitonClient extends WebTorrent {
   constructor (opts) {
-
-    // Set default WebTorrent options
-
-    /*
-    // Uncomment to disable connections with trackers, the dht, or other peers
-    // Disable trackers and dht
-    opts.tracker = opts.tracker || false
-    opts.dht = opts.dht || false
-    // Set max connections to 0
+    // Disable connections with other peers while node is bootstrapping
     opts.maxConns = opts.maxConns || 0
-    */
 
-    // Do not share torrent infohashes over MainlineDHT or PEX (BEP11)
-    opts.private = (typeof opts.private === 'boolean') ? opts.private : true
-    // Where to store torrents
-    opts.path = opts.path || path.join(__dirname + './bitondb/')
+    // Whether to participate in the strangernet peer discovery
+    // (will announce IP address to the BitTorrent Mainline DHT and connect to strangers)
+    opts.strangernet = (typeof opts.strangernet === 'boolean') ? opts.strangernet : false
+    opts.dht = opts.dht || opts.strangernet || false
+
+    // Disable trackers
+    opts.tracker = (typeof opts.tracker === 'boolean') ? opts.tracker : false
     // Disable Web Seeds (BEP19)
-    opts.webSeeds = opts.webSeeds || false
+    opts.webSeeds = (typeof opts.webSeeds === 'boolean') ? opts.webSeeds : false
+
+    // Set path for persistent biton store — includes confidential data!
+    opts.path = opts.path || path.join(__dirname + './bitonstore/')
 
     super(opts)
-    debug('new biton-hybrid client (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
+    debug('new biton-hybrid node (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
 
-    // Get magic bytes for specifying a demo network to connect to (used to derive swarmId and chunkId prefixes)
+    // Process biton opts
+
+    this.strangernet = opts.strangernet
+
+    // Get magic bytes for specifying an independent network to connect to
+    // Used as prefix in deriving user, swarm, and chunk Ids
     if (opts.netMagic) {
-      // Demo networks
+      // Demo networks (e.g. 'test')
       this._magicBuffer = Buffer.concat([Buffer.from(opts.netMagic), NETMAGICMAIN], 4)
     } else {
       // Main network
       this._magicBuffer = NETMAGICMAIN
     }
+
+    //TODO Perform other tasks that need to take place during node bootstrapping and emit `bitonReady`
+    // Developers once.('bitonReady') expect the node to be able to connect with other peers
+    this.once('newIdentity', function (keypair) {
+      this.maxConns = Number(opts.maxConns) || 50 // Hardcoded maxConns value in WebTorrent
+      this.emit('bitonReady')
+    })
   }
 
   /**
@@ -74,7 +83,7 @@ class bitonClient extends WebTorrent {
     const self = this
     bitonCrypto.ready(function () {
       if (!keypair) {
-        debug('Generating node keypair with %s seed', seed || 'random')
+        debug('generating node keypair with %s seed', seed || 'random')
         keypair = bitonCrypto.createKeyPair(seed)
       }
 
@@ -93,7 +102,7 @@ class bitonClient extends WebTorrent {
       self.peerId = peerId
       self._peerIdBuffer = peerIdBuffer
 
-      self.emit('newIdentity')
+      self.emit('newIdentity', identity)
     })
   }
 
@@ -143,11 +152,11 @@ class bitonClient extends WebTorrent {
   }
 
   joinRootSwarm (swarmSeed, secret, opts, ontorrent) {
-    // Connect to the root (top level) of that swarm
+    // Connect to the root (top level) swarm of the given swarmSeed
     return this.joinSwarm(swarmSeed, secret, 0, opts, ontorrent)
   }
 
-  joinGlobalSwarm (opts, ontorrent) {
+  joinGlobalNetwork (opts, ontorrent) {
     return this.joinRootSwarm('', '', opts, ontorrent)
   }
 
@@ -157,6 +166,7 @@ class bitonClient extends WebTorrent {
      */
   destroy (cb) {
     super.destroy(cb)
+    // Destory NOISE sessions
     if (typeof localStorage !== 'undefined') {
       window.localStorage.removeItem('debug')
     }

@@ -3,14 +3,26 @@
 'use strict'
 
 const debug = require('debug')('biton:hybrid-app')
-const bitonClient = require('../biton-hybrid')
+const biton = require('../biton-hybrid')
 const express = require('express')
 const http = require('http')
 const path = require('path')
 
+/* Parse environment configuration variables */
+
+// Participate in peer discovery over Mainline DHT (default false)
+// Fallback bootstrapping mechanism when the user cannot connect through trusted nodes
+const STRANGERNET = process.env.OPENNET || false
+// Join the global biton swarm (default false)
+// Recommended unless nodes are behind bandwidth capped connections
+const JOINGLOBAL = process.env.JOINGLOBAL || false
+// Optional seed for joining a local swarm (e.g. 'myApp')
+const LOCALSWARM = process.env.LOCALSWARM
+// Magic bytes for connecting to independent networks
+const NETMAGIC = process.env.NETMAGIC
+
 const PORT = process.env.PORT || 5000
 const HOST = process.env.HOST || process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1'
-const NETMAGIC = process.env.NETMAGIC
 
 console.log('biton webtorrent-hybrid client')
 
@@ -35,7 +47,7 @@ app.get('*', function (req, res) {
   res.status(404).send('404 Not Found')
 })
 
-server.listen(PORT, HOST, () => {
+server.listen(PORT, HOST, function () {
   console.log('HTTP server running at http://%s:%s', server.address().address, server.address().port)
 })
 
@@ -53,9 +65,9 @@ function exitHandler (options = {}) {
   if (server && server.listening) {
     server.close()
   }
-  if (client && !client.destroyed) {
+  if (node && !node.destroyed) {
     console.log('Destroying biton wires...')
-    client.destroy()
+    node.destroy()
   }
   const exitCode = options.exitCode || 0
   process.exit(exitCode)
@@ -73,8 +85,19 @@ process.on('uncaughtException', function (err) {
 })
 
 // Start a biton client
-const client = new bitonClient({ private: false, netMagic: NETMAGIC })
+const node = new biton({ strangernet: STRANGERNET, netMagic: NETMAGIC})
 
-// Generate new identity and join root swarm
-client.once('newIdentity', client.joinGlobalSwarm)
-client.getNewIdentity()
+// Wait for node to generate a new identity and to be ready to join
+node.once('newIdentity',function () {
+  if (JOINGLOBAL) {
+    console.log('Connecting to the global biton network')
+    const globalSwarm = node.joinGlobalNetwork()
+  }
+
+  if (LOCALSWARM) {
+    console.log('Connecting to local swarm %s', LOCALSWARM)
+    const localSwarm = node.joinRootSwarm(LOCALSWARM)
+  }
+})
+
+node.getNewIdentity()

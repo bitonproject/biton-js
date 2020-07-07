@@ -1,7 +1,7 @@
 const debug = require('debug')('biton:entangled')
 localStorage.debug = 'biton*'
 
-const bitonClient = require('../../')
+const biton = require('../../')
 const bitonCrypto = require('../../lib/crypto')
 
 const P2PGraph = require('p2p-graph')
@@ -37,7 +37,7 @@ const COLORS = {
 
 module.exports = function () {
   let graph
-  let client, torrent
+  let node, swarm
 
   // Do not start the demo automatically.
   let $startBtn = document.querySelector('#startBtn')
@@ -128,14 +128,14 @@ module.exports = function () {
     }
 
     graph = window.graph = new P2PGraph('.torrent-graph')
-    graph.add({ id: 'Me', name: shortName(client.peerId), me: true })
+    graph.add({ id: 'Me', name: shortName(node.peerId), me: true })
 
     graph.on('select', function (id) {
       if (id !== 'Me') {
         graph.swapNoise(id)
         // Send ping to the selected peer
         debug('sending ping message to peer %s', shortName(id))
-        torrent._peers[id].wire.biton.emit('sendPing')
+        swarm._peers[id].wire.biton.emit('sendPing')
       }
     })
 
@@ -144,25 +144,20 @@ module.exports = function () {
   function init () {
     bitonCrypto.ready(function () {
       // Create client for the test network
-      client = window.client = new bitonClient({ private: false, netMagic: 'test' })
-      client.on('warning', onWarning)
-      client.on('error', onError)
+      node = window.client = new biton({ opennet: true,  netMagic: 'test' })
+      node.on('warning', onWarning)
+      node.on('error', onError)
 
-      client.on('newIdentity', onIdentity)
-      client.getNewIdentity()
+      node.once('newIdentity', onIdentity)
+      node.getNewIdentity()
 
       initGraph()
     })
   }
 
   function onIdentity () {
-    torrent = client.joinGlobalSwarm({}, onTorrent)
-    torrent.on('wire', onWire)
-  }
-
-
-
-  function onTorrent () {
+    swarm = node.joinRootSwarm('entangled')
+    swarm.on('wire', onWire)
   }
 
   function shortName (peerId) {
@@ -191,7 +186,7 @@ module.exports = function () {
   }
 
   function onPeerUpdate () {
-    $numPeers.innerHTML = torrent.numPeers + (torrent.numPeers === 1 ? ' peer' : ' peers')
+    $numPeers.innerHTML = swarm.numPeers + (swarm.numPeers === 1 ? ' peer' : ' peers')
   }
 
   function onError (err) {
