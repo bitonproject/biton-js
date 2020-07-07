@@ -3,41 +3,49 @@
    <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>biton</title>
+      <title>biton ⬤ENTANGLED◯ demo</title>
       <link rel="stylesheet" type="text/css" href="style.css" />
    </head>
    <main>
       <div id="hero">
          <div id="progressBar"></div>
 
-         <h1>biton entangled demo</h1>
+         <h1>biton ⬤ENTANGLED◯ demo</h1>
          <h2><a href="https://bitonproject.org" target="_blank">bitonproject.org</a></h2>
-         <ul>
-            <li>Start a <a href="https://github.com/bitonproject/biton" target="_blank">biton client</a>
-               within this browser tab</li>
-            <li>Generate a public keypair and
-               <a href="https://bitonproject.org/guide/tech/specification.html#biton-client-address"
-                  target="_blank">biton identity</a></li>
-            <li>Join the global test network, discovering other users through BitTorrent Mainline DHT</li>
-            <li>Your node is represented by the yellow circle in the center of the graph. Connections with other users
-                later on appear as smaller circles</li>
-            <li>Click on a circle to swap the entangled color!
-               (This will also swap the color of your circle at the browser of the other user)</li>
-            <li>Hint* Open this website on a new browser tab to run multiple clients. Also, see your
-               <a href="https://balsamiq.com/support/faqs/browserconsole/" target="_blank">browser console</a> for debug
-               messages</li>
-         </ul>
 
          <h3>What information will others learn about me?</h3>
-         <p>Running this demo <b>will expose your IP address</b> to other biton entangled users and to the BitTorrent
-            DHT network.</p>
-         <div id="startBtn"><a href="#"><button type="button">Start biton</button></a></div>
+         <p>Starting this demo will reveal your IP address and the fact that you are running biton to other biton users,
+         to network operators such as your Internet Service Provider, and to the BitTorrent peer discovery network.</p>
+
+         <div id="startBtn"><a href="#"><button type="button">I understand, start biton</button></a></div>
+
          <div class="clearfix" id="status">
-            <div id="statusLeft"><span class="show-leech">Connected to </span><code id="numPeers">0 peers</code>. </div>
+            <div id="statusLeft"><span class="show-leech">Connected to </span><code id="numPeers">0 biton users</code>. </div>
          </div>
          <div id="svgWrap">
             <div class="torrent-graph"></div>
          </div>
+
+         <h3>What to expect from this demo</h3>
+         <p>Your biton node is represented by the yellow circle in the center of the graph. When you connect with
+            another user, you each generate a smaller circle around you that always has the same color in both
+            browsers. Click on those smaller circles to swap the entangled color for both you and the other user!</p>
+         <p>Tip: Open <a href="https://demo.bitonproject.org/entangled.html" target="_blank">this website</a>
+            in a new browser tab or in your mobile phone in order to act as multiple users. Also, see your
+            <a href="https://balsamiq.com/support/faqs/browserconsole/" target="_blank">browser console</a>
+            for debug messages.</p>
+         </hr>
+
+         <p>Under the hood, this demo:</p>
+         <ul>
+            <li>Starts a <a href="https://github.com/bitonproject/biton" target="_blank">biton node</a>
+               within this browser tab.</li>
+            <li>Generates a public keypair and
+               <a href="https://bitonproject.org/guide/tech/specification.html#biton-client-address"
+                  target="_blank">biton identity.</a></li>
+            <li>Joins the <em>entangled</em> test network, discovering other users through BitTorrent Mainline DHT.</li>
+         </ul>
+
          <ul id="clientLog"></ul>
       </div>
    </main>
