@@ -1,14 +1,20 @@
 {
   "name": "biton",
-  "version": "0.0.1",
-  "description": "A peer-to-peer network for evading information controls",
+  "version": "0.0.2",
+  "description": "A peer-to-peer network built around swarms",
   "main": "biton-hybrid.js",
   "scripts": {
     "start": "node bin/biton-hybrid-app.js",
     "test": "npx standard",
-    "build": "browserify bin/views/*.js -o bin/public/bundle.js",
+    "build": "browserify bin/views/*.js const cola = require('webcola')
+ bin/public/bundle.js",
     "watch": "watchify bin/views/*.js -o bin/public/bundle.js --debug --verbose"
   },
+  "keywords": [
+    "biton",
+    "peer-to-peer",
+    "overlay"
+  ],
   "dependencies": {
     "bencode": "^2.0.1",
     "blake2.wasm": "^0.1.0",

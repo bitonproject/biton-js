@@ -12,12 +12,12 @@ const path = require('path')
 
 // Participate in peer discovery over Mainline DHT (default false)
 // Fallback bootstrapping mechanism when the user cannot connect through trusted nodes
-const STRANGERNET = process.env.OPENNET || false
+const STRANGERS = process.env.STRANGERS === 'true' || false
 // Join the global biton swarm (default false)
 // Recommended unless nodes are behind bandwidth capped connections
-const JOINGLOBAL = process.env.JOINGLOBAL || false
-// Optional seed for joining a local swarm (e.g. 'myApp')
-const LOCALSWARM = process.env.LOCALSWARM
+const GLOBALNET = process.env.JOINGLOBAL === 'true' || false
+// Optional seed for joining a local network (e.g. 'myApp')
+const LOCALNET = process.env.LOCALNET
 // Magic bytes for connecting to independent networks
 const NETMAGIC = process.env.NETMAGIC
 
@@ -85,18 +85,18 @@ process.on('uncaughtException', function (err) {
 })
 
 // Start a biton client
-const node = new biton({ strangernet: STRANGERNET, netMagic: NETMAGIC})
+const node = new biton({ strangers: STRANGERS, netMagic: NETMAGIC})
 
 // Wait for node to generate a new identity and to be ready to join
-node.once('newIdentity',function () {
-  if (JOINGLOBAL) {
+node.once('bitonReady', function () {
+  if (GLOBALNET) {
     console.log('Connecting to the global biton network')
-    const globalSwarm = node.joinGlobalNetwork()
+    const globalNet= node.joinGlobalNet()
   }
 
-  if (LOCALSWARM) {
-    console.log('Connecting to local swarm %s', LOCALSWARM)
-    const localSwarm = node.joinRootSwarm(LOCALSWARM)
+  if (LOCALNET) {
+    console.log('Connecting to local network %s', LOCALNET)
+    const localNet = node.joinLocalNet(LOCALNET)
   }
 })
 

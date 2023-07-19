@@ -29,20 +29,21 @@ const NETMAGICMAIN = Buffer.from([0, 0, 0, 0])
  * biton Client
  * @param {Object=} opts
  */
-class bitonClient extends WebTorrent {
+class bitonNode extends WebTorrent {
   constructor (opts) {
     // Disable connections with other peers while node is bootstrapping
-    opts.maxConns = opts.maxConns || 0
+    opts.maxConns = 0
 
-    // Whether to participate in the strangernet peer discovery
+    // Whether to participate in the strangers peer discovery (overwrites WebTorrent dht option)
     // (will announce IP address to the BitTorrent Mainline DHT and connect to strangers)
-    opts.strangernet = (typeof opts.strangernet === 'boolean') ? opts.strangernet : false
-    opts.dht = opts.dht || opts.strangernet || false
+    opts.strangers = (typeof opts.strangers === 'boolean') ? opts.strangers : false
 
-    // Disable trackers
-    opts.tracker = (typeof opts.tracker === 'boolean') ? opts.tracker : false
-    // Disable Web Seeds (BEP19)
-    opts.webSeeds = (typeof opts.webSeeds === 'boolean') ? opts.webSeeds : false
+    debug('strangers peer discovery over BitTorrent Mainline DHT: %s', opts.strangers)
+
+    // If strangers peer discovery disabled, disable dht, trackers and Web Seeds (BEP19)
+    opts.dht = opts.strangers
+    opts.tracker = opts.strangers
+    opts.webSeeds = opts.strangers
 
     // Set path for persistent biton store — includes confidential data!
     opts.path = opts.path || path.join(__dirname + './bitonstore/')
@@ -50,9 +51,7 @@ class bitonClient extends WebTorrent {
     super(opts)
     debug('new biton-hybrid node (peerId %s, nodeId %s, port %s)', this.peerId, this.nodeId, this.torrentPort)
 
-    // Process biton opts
-
-    this.strangernet = opts.strangernet
+    this.strangers = opts.strangers
 
     // Get magic bytes for specifying an independent network to connect to
     // Used as prefix in deriving user, swarm, and chunk Ids
@@ -112,10 +111,14 @@ class bitonClient extends WebTorrent {
      * @param  {string} challengeSecret
      * @param  {number} swarmPath
      * @param  {Object=} opts
-     * @param  {function=} ontorrent called when torrent is seeding
-     * @return {torrent}
+     * @param  {function=} onSwarm called when torrent is seeding
+     * @return {swarm}
      */
-  joinSwarm (swarmSeed, challengeSecret, swarmPath, opts, ontorrent) {
+  joinSwarm (swarmSeed, challengeSecret, swarmPath, opts, onSwarm) {
+    opts = opts || { }
+    // If strangers peer discovery enabled, share swarm infohashes over MainlineDHT and PEX (BEP11)
+    opts.private = !this.strangers
+
     const combinedSeed = [bitonSEED, this._magicBuffer, swarmSeed, swarmPath].join('&')
     const challengeSeed = [combinedSeed, challengeSecret].join('&')
 
@@ -123,54 +126,46 @@ class bitonClient extends WebTorrent {
     const swarmInfohash = Buffer.from(swarmInfohashBytes.subarray(0, 20)).toString('hex')
     debug('joining biton swarm with swarm seed "%s" and info-hash "%s"', combinedSeed, swarmInfohash)
 
-    const torrent = this.add(swarmInfohash, opts, ontorrent)
+    const swarm = this.add(swarmInfohash, opts, onSwarm)
 
     const { _identity, _keypair, peerId } = this
     // Only use the biton extension for torrents that correspond to biton swarms
-    torrent.on('wire', function (wire, addr) {
-      debug('swarm "%s": connected to peer with address %s', combinedSeed, addr)
+    swarm.on('wire', function (wire, addr) {
+      debug('swarm "%s": connected to peer %s net address %s', combinedSeed, wire.peerId, addr)
       debug('supported extensions: ' + JSON.stringify(wire.peerExtensions))
       const initiator = this._peers[wire.peerId].conn.initiator
 
-      wire.use(bitonExtension(challengeSeed, peerId, _identity, _keypair,
-        initiator))
-
-      wire._ext.biton.once('noiseReady', () => {
-        wire.emit('wireNoiseReady')
-      })
-
-      // Transfer events between biton-ext / biton-browser
-      wire.on('sendPing', () => {
-        wire._ext.biton._sendPing()
-      })
-      wire._ext.biton.on('receivedPing', () => {
-        wire.emit('receivedPing')
-      })
+      wire.use(bitonExtension(challengeSeed, peerId, _identity, _keypair, initiator))
     })
 
-    return torrent
+    return swarm
   }
 
-  joinRootSwarm (swarmSeed, secret, opts, ontorrent) {
+  joinRootSwarm (swarmSeed, secret, opts, onSwarm) {
     // Connect to the root (top level) swarm of the given swarmSeed
-    return this.joinSwarm(swarmSeed, secret, 0, opts, ontorrent)
+    return this.joinSwarm(swarmSeed, secret, 0, opts, onSwarm)
   }
 
-  joinGlobalNetwork (opts, ontorrent) {
-    return this.joinRootSwarm('', '', opts, ontorrent)
+  joinGlobalNet (opts, onSwarm) {
+    return this.joinRootSwarm('', '', opts, onSwarm)
+  }
+
+  joinLocalNet (swarmSeed, opts, onSwarm) {
+    return this.joinRootSwarm(swarmSeed)
   }
 
   /**
-     * Destroy the client, including all torrents and connections to peers.
+     * Destroy node
      * @param  {function} cb
      */
   destroy (cb) {
     super.destroy(cb)
-    // Destory NOISE sessions
+    delete this._keypair
+    //TODO Destory NOISE sessions
     if (typeof localStorage !== 'undefined') {
       window.localStorage.removeItem('debug')
     }
   }
 }
 
-module.exports = bitonClient
+module.exports = bitonNode

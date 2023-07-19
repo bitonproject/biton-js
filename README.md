@@ -6,6 +6,7 @@
 [standard-image]: https://img.shields.io/badge/code_style-standard-brightgreen.svg
 [standard-url]: https://standardjs.com
 
+
 ### Bypassing information controls with biton
 <https://bitonproject.org>
 
@@ -16,23 +17,31 @@ mesh topologies and community networks, and in that way function during Internet
 shutdowns. biton aims to defend against various tactics used by modern censors,
 such as protocol fingerprinting, traffic analysis, and bridge enumeration.
 
+Visit <https://demo.bitonproject.org> for a live demo of the Web interface.
+
 
 ### Project structure
 
-This repository hosts the implementation of [`biton0_BitTorrent`](https://bitonproject.org/guide/tech/specification.html)
-as an extension to [WebTorrent hybrid](https://webtorrent.io).
+Reference implementation of [`biton0_BitTorrent`](https://bitonproject.org/guide/tech/specification.html)
+as an extension to [WebTorrent](https://webtorrent.io).
+In specific, this package exports [biton-hybrid](biton-hybrid.js) as a Node.js
+module which extends [`webtorrent-hybrid`](https://github.com/webtorrent/webtorrent-hybrid)
+and can therefore connect to both TCP/uTP and WebRTC nodes.
 
   *  [`lib/biton-ext.js`](lib/biton-ext.js) the biton extension
-  *  [`biton-hybrid.js`](biton-hybrid.js) biton hybrid client integrating the
-  biton extension
-  *  [`bin/biton-hybrid-app.js`](bin/biton-hybrid-app.js) command
-  line and Web interface for the biton hybrid client
+  *  [`biton-hybrid.js`](biton-hybrid.js) main module, the biton hybrid node
+  using `lib/biton-ext`
+  *  [`bin/biton-hybrid-app.js`](bin/biton-hybrid-app.js) command line and Web
+  interface for `biton-hybrid`
   *  [`bin/views/entangled.js`](bin/views/entangled.js) entangled Web demo
 
+See [here](https://bitonproject.org/guide/run/) for instructions on how to run
+the biton hybrid app on your computer, and [here](https://bitonproject.org/guide/intro/developers.html)
+about integrating biton into your own project.
 
 ### Disclaimer
 
-This proof of concept implementation is under development and must not be used
+**UNDER DEVELOPMENT**. This proof of concept implementation must not be used
 besides for simulations.
 
 
@@ -40,7 +49,7 @@ besides for simulations.
 
 ### Setup the development environment
 
-Install node.js and npm through the package manager of your operating system
+Install Node.js and npm through the package manager of your operating system
 ([instructions here](https://nodejs.org/en/download/package-manager/)). Then,
 
 ```shell
@@ -51,6 +60,7 @@ cd biton
 # Install node modules
 npm install
 ```
+
 
 ### Compile browser client resources
 
@@ -77,43 +87,98 @@ This has to be executed once and will keep track of your local modifications
 
 ## Usage
 
-### Running biton-hybrid-app
+### Integrate biton into your Node.js project
 
+Install the biton npm module
 ```shell
-DEBUG=biton* NETMAGIC=test npm start
+cd MyApp/
+npm install --save biton
 ```
 
-The Web interface is listening at <http://localhost:5000>. `biton-hybrid`
-clients are extending `webtorrent-hybrid` and can connect to both TCP/uTP and
-WebRTC nodes.
+Join biton swarms and listen for events
+```js
+const biton = require('biton')
+
+const opts = {
+  strangers: true,  // Enable peer discovery over the BitTorrent Mainline DHT
+  netMagic: 'test'  // Connect to the test network
+}
+const node = new biton(opts)
+
+// Wait for node to generate a biton identity
+node.once('bitonReady', onNodeReady)
+
+// Generate new identity
+node.getNewIdentity()
+
+function onNodeReady() {
+  // Join the 'MyApp' local network
+  const myAppNet= node.joinLocalNet('MyApp')
+  // Attach listener for new connections in the 'MyApp' swarm
+  myAppNet.on('wire', onMyAppWire)
+
+  // Join the global biton network
+  // (recommended unless nodes are behind bandwidth capped connections, e.g. mobile Internet)
+  const globalNet = node.joinGlobalNet()
+}
+
+// Handle new connections
+function onMyAppWire (wire) {
+  const peerId = wire.peerId
+  const bitonExt = wire._ext.biton
+
+  bitonExt.once('wireNoiseReady', function() {
+      console.log('Completed noise handshake with peer %s', peerId)
+  })
+}
+```
+
+### Embedding biton in websites
+
+biton can be bundled into a javascript file that can be embedded into any
+website, e.g. with [Browserify](https://browserify.org/) as we do in this
+repository.  connect with biton nodes that support WebRTC. For that you can use
+For that you will also need to serve
+the `.wasm` files, since they are not included in Browserify (as in `bin/public`).
+
+For more information about how to develop applications for biton visit the
+[developers guide](https://bitonproject.org/guide/intro/developers.html).
 
 
-### Environment variables
+### Running biton Node.js app
 
-| Name        | Purpose                                                            |
-|-------------|--------------------------------------------------------------------|
-| `SWARMSEED` | Join a biton swarm (e.g. `orbit#biton`)                            |
-| `NETMAGIC`  | Join demo biton networks (e.g. `test`)                             |
-| `DEBUG`     | Enables/disables specific debugging namespaces (e.g. ```biton*```) |
-| `PORT`      | The Web interface listening port (default `5000`)                  |
-| `HOST`      | The Web interface host address (default 127.0.0.1)                 |
-| `NODE_ENV=production` | Serve requests from others (bind host to `0.0.0.0`)      |
+Start `bin/biton-hybrid-app.js`. Set `biton*` debug namespace, enable opennet
+peer discovery over BitTorrent Mainline DHT, and connect to the global biton
+swarm.
 
+```shell
+DEBUG=biton* OPENNET=true JOINGLOBAL=true npm start
+```
 
-### Running biton on the browser
+#### Environment variables
 
-You can run biton client in the `test` demo network
-visiting <http://localhost:5000>. Each tab is an independent biton client, so
-you can open multiple tabs for simulating a swarm of peers.
+| Name         | Purpose                                                          |
+|--------------|------------------------------------------------------------------|
+| `DEBUG`      | Specify debugging namespaces (e.g. ```biton*```)                 |
+| `OPENNET`    | Connect to strangers via Mainline DHT (default `false`)          |
+| `JOINGLOBAL` | Join the global biton swarm (default `false`)                    |
+| `SWARMSEED`  | Join a biton community swarm (default is the global biton swarm) |
+| `NETMAGIC`   | Join independent biton networks (default is the main net)        |
+| `PORT`       | The Web interface listening port (default `5000`)                |
+| `HOST`       | The Web interface host address (default `127.0.0.1`)             |
+| `NODE_ENV=production` | Expose Web interface to public requests                 |
 
-If you are visiting a local `biton-hybrid-app` with Firefox, make sure that you
-are not blocking all third-party cookies (custom enhanced tracking protection),
-as this prevents connections to BitTorrent trackers. You can temporarily
-whitelist localhost via the shield in the URL address bar
+#### Access the local Web interface
+
+The Web interface is listening at <http://localhost:5000>.
+
+If you are accessing a local `biton-hybrid-app` with Firefox and cannot
+discover opennet peers, make sure that you are not blocking all third-party
+cookies, as this prevents connections to Mainline DHT seed nodes. You can
+temporarily whitelist localhost via the shield in the URL address bar
 ([instructions here](https://support.mozilla.org/kb/enhanced-tracking-protection-firefox-preview#w_turn-protections-onoff-for-individual-sites)).
 
-
-### Running in Docker
+#### Running in Docker
 
 Build the Docker image and start a container with the name `biton-hybrid-client`
 by executing:
